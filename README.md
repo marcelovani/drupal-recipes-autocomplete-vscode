@@ -1,6 +1,8 @@
 # Drupal Recipes Autocomplete: VS Code Extension
 VS Code extension that provides autocomplete for Drupal Recipes
 
+![Autocomplete](docs/drupal-recipes-autocomplete.gif)
+
 At this point, this is only a POC on the top of the Drupal Extension, see https://github.com/kaermorchen/vscode-drupal/compare/master...marcelovani:vscode-drupal:drupal-recipes-autocomplete?expand=1
 
 The plan is to move the code here and make it a standalone extension, this will speed up the development process.
