@@ -186,7 +186,7 @@ export default class RecipesCompletionProvider
         label,
         detail: parent,
         insertText: new SnippetString(
-          `- ${insertText}\n`
+          `${insertText}\n- `
         ),
       };
 
