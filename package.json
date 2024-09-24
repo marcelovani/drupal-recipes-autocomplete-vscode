@@ -1,0 +1,99 @@
+{
+  "name": "drupal-recipes-autocomplete-vscode",
+  "displayName": "Drupal Recipes Autocomplete for VS Code",
+  "icon": "docs/icon.png",
+  "description": "Autocomplete for Drupal Recipes",
+  "author": "Marcelo Vani",
+  "version": "0.0.1",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "repository": {
+    "url": "https://github.com/marcelovani/drupal-recipes-autocomplete-vscode.git",
+    "type": "git"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "Drupal",
+    "Recipe",
+    "Autocomplete"
+  ],
+  "activationEvents": [
+    "onLanguage:yaml",
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "yaml",
+        "aliases": [
+          "YAML",
+          "yaml"
+        ],
+        "extensions": [
+          ".yaml",
+          ".yml"
+        ]
+      }
+    ],
+    "yamlValidation": [
+      {
+        "fileMatch": "recipe.yml",
+        "url": "https://json.schemastore.org/drupal-recipe.json"
+      }
+    ],
+    "configuration": {},
+    "viewsContainers": {},
+    "views": {}
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run package",
+    "compile": "webpack",
+    "watch": "webpack --watch",
+    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile-tests": "tsc -p . --outDir out",
+    "watch-tests": "tsc -p . -w --outDir out",
+    "pretest": "npm run compile-tests && npm run compile && npm run lint",
+    "lint": "eslint src",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.8",
+    "@types/node": "^20.16.6",
+    "@types/vscode": "^1.93.0",
+    "@typescript-eslint/eslint-plugin": "^8.7.0",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@vscode/test-cli": "^0.0.10",
+    "@vscode/test-electron": "^2.4.1",
+    "eslint": "^9.11.1",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.6.2",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "yaml": "^2.5.1"
+  },
+  "extensionDependencies": [
+    "redhat.vscode-yaml"
+  ],
+  "release-it": {
+    "plugins": {
+      "@release-it-plugins/lerna-changelog": {
+        "infile": "CHANGELOG.md",
+        "launchEditor": false
+      }
+    },
+    "git": {
+      "tagName": "v${version}"
+    },
+    "github": {
+      "release": true,
+      "tokenRef": "GITHUB_AUTH"
+    }
+  }
+}
