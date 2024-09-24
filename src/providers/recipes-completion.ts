@@ -55,6 +55,7 @@ export default class RecipesCompletionProvider
       '.field_type_categories.yml',
       '.link_relation_types.yml',
       'core.entity',
+      '/tests/',
     ];
 
     // Helper function to check if the file should be skipped.
@@ -79,29 +80,29 @@ export default class RecipesCompletionProvider
       }
 
       // Check file contents.
-      if (path.toString().includes('/recipe.yml')) {
+      if (filePath.includes('/recipe.yml')) {
         type = 'recipe';
         label = 'Recipe';
       }
-      else if (path.toString().includes('/profiles/')) {
+      else if (filePath.includes('/profiles/')) {
         type = 'profile';
         label = 'Profile';
       }
-      else if (path.toString().includes('/modules/')) {
+      else if (filePath.includes('/modules/')) {
         type = 'module';
         label = 'Module';
       }
-      else if (path.toString().includes('/themes/')) {
+      else if (filePath.includes('/themes/')) {
         type = 'theme';
         label = 'Theme';
       }
-      else if (path.toString().includes('/default_content/') || path.toString().includes('/content/')) {
+      else if (filePath.includes('/default_content/') || filePath.includes('/content/')) {
         type = 'content';
         label = 'Content';
       }
-      else if (path.toString().includes('/config/')) {
+      else if (filePath.includes('/config/')) {
         // Exclude config schema.
-        if (path.toString().includes('/schema/')) {
+        if (filePath.includes('/schema/')) {
           continue;
         }
         type = 'config';
@@ -113,8 +114,14 @@ export default class RecipesCompletionProvider
       }
 
       // Read file.
-      const buffer = await workspace.fs.readFile(path);
-      const contents = parseYaml(buffer.toString());
+      let contents = null;
+      try {
+        let buffer = await workspace.fs.readFile(path);
+        contents = parseYaml(buffer.toString());
+      }
+      catch(err) {
+        console.error(err);
+      }
 
       if (contents == null) {
         console.error("Cannot parse", path);
@@ -133,12 +140,13 @@ export default class RecipesCompletionProvider
       let match = null;
       let insertText = '';
       let parent = '';
+      let description = '';
       switch(type) {
         case 'theme':
         case 'module':
         case 'profile':
           regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
-          match = path.toString().match(regex);
+          match = filePath.match(regex);
           if (match) {
             insertText = match[1];
           }
@@ -147,11 +155,12 @@ export default class RecipesCompletionProvider
           }
           label = `${contents.name} (${label})`;
           parent = 'install';
+          description = contents.description;
           break;
 
         case 'recipe':
           regex = /\/([^\/]+)\/recipe\.yml$/;
-          match = path.toString().match(regex);
+          match = filePath.match(regex);
           if (match) {
             insertText = match[1];
           }
@@ -160,11 +169,12 @@ export default class RecipesCompletionProvider
           }
           label = `${contents.name} (${label})`;
           parent = 'recipes';
+          description = contents.description;
           break;
     
         case 'config':
           regex = /\/config\/.*\/([^\/]+)\.yml$/;
-          match = path.toString().match(regex);
+          match = filePath.match(regex);
           if (match) {
             insertText = match[1];
           }
@@ -173,18 +183,21 @@ export default class RecipesCompletionProvider
           }
           label = `${contents.id} (${label})`;
           parent = 'import';
+          description = 'Config';
           break;
 
         case 'content':
-          console.error(`Type not implemented ${type}`);
+          console.error(`${type} type is not implemented yet.`);
+          break;
 
         default:
-          console.error(`Type not treated ${type}`);
+          console.error(`${type} type was not treated.`);
       }
 
       const completion: CompletionItem = {
         label,
         detail: parent,
+        documentation: description,
         insertText: new SnippetString(
           `${insertText}\n- `
         ),
