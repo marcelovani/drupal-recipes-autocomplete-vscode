@@ -1,41 +1,30 @@
-import * as vscode from 'vscode';
-import { parse } from 'yaml';
+import { ExtensionContext } from 'vscode';
+import DrupalWorkspace from './base/drupal-workspace';
+import getWorkspaceFolders from './utils/get-workspace-folders';
+import getComposer from './utils/get-composer';
 
-export function activate(context: vscode.ExtensionContext) {
-    const provider = vscode.languages.registerCompletionItemProvider(
-        { language: 'yaml', scheme: 'file' },
-        {
-            provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
-                const fileName = vscode.window.activeTextEditor?.document.fileName;
-                console.log('fooo');
-                // log .
-                if (fileName && fileName.endsWith("recipe.yml")) {
-                    const linePrefix = document.lineAt(position).text.substr(0, position.character);
-                    if (!linePrefix.endsWith(' ')) {
-                        // foo.
-                        return undefined;
-                    }
-                    // Example YAML completion items
-                    const completions = [
-                        new vscode.CompletionItem('name: ', vscode.CompletionItemKind.Field),
-                        new vscode.CompletionItem('version: ', vscode.CompletionItemKind.Field),
-                        {
-                            label: 'dependencies:',
-                            kind: vscode.CompletionItemKind.Module,
-                            insertText: 'dependencies:\n  ',
-                            documentation: new vscode.MarkdownString("List of package dependencies")
-                        }
-                    ];
+export async function activate(context: ExtensionContext) {
+  const drupalWorkspaces = [];
 
-                    return completions;
-                }
-                return undefined;
-            }
-        },
-        ' ' // Trigger completion after a space
-    );
+  for (const workspaceFolder of getWorkspaceFolders()) {
+    const composer = await getComposer(workspaceFolder);
 
-    context.subscriptions.push(provider);
+    if (!composer) {
+      continue;
+    }
+
+    if ('drupal/core-recommended' in composer.require) {
+      drupalWorkspaces.push(new DrupalWorkspace(workspaceFolder));
+    }
+  }
+
+  if (drupalWorkspaces.length === 0) {
+    return;
+  }
+
+  context.subscriptions.push(
+    ...drupalWorkspaces,
+  );
 }
 
 export function deactivate() {}
