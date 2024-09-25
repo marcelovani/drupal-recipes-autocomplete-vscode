@@ -7,6 +7,7 @@ import {
   SnippetString,
   languages,
   window,
+  Uri,
 } from 'vscode';
 
 import { parse as parseYaml } from 'yaml';
@@ -38,8 +39,155 @@ export default class RecipesCompletionProvider
     this.parseYamlFiles();
   }
 
-  async parseYamlFiles() {
+  /**
+   * Detects the yml type.
+   * 
+   * @param string filePath
+   *   The file path.
+   * @returns string|boolean
+   *   Returns the file type or false.
+   */
+  detectFileType(filePath: string): string | boolean {
+    let type = '';
+
+    // Check file contents.
+    if (filePath.includes('/recipe.yml')) {
+      type = 'recipe';
+    }
+    else if (filePath.includes('/config/')) {
+      // Exclude config schema.
+      if (filePath.includes('/schema/')) {
+        return false;
+      }
+      type = 'config';
+    }
+    else if (filePath.includes('/profiles/')) {
+      type = 'profile';
+    }
+    else if (filePath.includes('/modules/')) {
+      type = 'module';
+    }
+    else if (filePath.includes('/themes/')) {
+      type = 'theme';
+    }
+    else if (filePath.includes('/default_content/') || filePath.includes('/content/')) {
+      type = 'content';
+    }
+    else {
+      console.log(`Ignored ${filePath}`);
+      return false;
+    }
+
+    return type;
+  }
+
+  /**
+   * Creates the completion item and stores in cache.
+   * 
+   * @param sting type
+   *   The file type.
+   * @param Uri path
+   *   The file path.
+   * @param any contents
+   *   The file contents.
+   */
+  processCompletionItem(type: string, path: Uri, contents: any) {
+    // Prepare completion item.
+    let regex = null;
+    let match = null;
+    let insertText = '';
+    let parent = '';
+    let label = '';
+    let description = '';
+    let filePath: string = path.toString();
+    switch(type) {
+      case 'theme':
+      case 'module':
+      case 'profile':
+        // Extract the module/theme/profile filename.
+        regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
+        match = filePath.match(regex);
+        if (match && typeof match[1] !== 'undefined') {
+          insertText = `${match[1]}\n- `;
+          label = `${contents.name} (${type.toUpperCase()})`;
+          parent = 'install';
+          description = contents.description;
+          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+        }
+        break;
+
+      case 'recipe':
+        // Extract the recipe name from filename.
+        regex = /\/([^\/]+)\/recipe\.yml$/;
+        match = filePath.match(regex);
+        if (match && typeof match[1] !== 'undefined') {
+          insertText = `${match[1]}\n- `;
+          label = `${contents.name} (${type.toUpperCase()})`;
+          parent = 'recipes';
+          description = contents.description;
+          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+        }
+        break;
+
+      case 'config':
+        // Extract config name from filename.
+        regex = /\/config\/.*\/([^\/]+)\.yml$/;
+        match = filePath.match(regex);
+        if (match && typeof match[1] !== 'undefined') {
+          insertText = `${match[1]}:\n  `;
+          label = `${insertText} (${type.toUpperCase()})`;
+          parent = 'actions|import';
+          description = 'Config';
+          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+        }
+        break;
+
+      case 'content':
+        console.warn(`${type} type is not implemented yet.`);
+        break;
+
+      default:
+        console.error(`${type} type was not treated.`);
+    }
+  }
+
+  /**
+   * Stores autocomplete item in cache.
+   * 
+   * @param string key
+   *   The cache key.
+   * @param string label
+   *   The label.
+   * @param string detail
+   *   Used to store the key of the parent.
+   * @param string documentation
+   *   The documentation.
+   * @param string insertText
+   *   The text to be inserted.
+   */
+  storeCompletionItem(key: string, label: string, detail: string, documentation: string, insertText: string) {
+    const completion: CompletionItem = {
+      label,
+      detail,
+      documentation,
+      insertText: new SnippetString(insertText),
+    };
+
     let completions: CompletionItem[] = [];
+    completions.push(completion);
+
+    this.completionFileCache.set(key, completions);
+  }
+
+  /**
+   * Finds all yml files in the Drupal codebase,
+   * parses the files to detect what type of file it is,
+   * stores the items in cache, adds the items to the
+   * autocomplete list.
+   * @todo Move this function to a separate file.
+   */
+  async parseYamlFiles() {
+    
     const files =  await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
     const ignore: string[] = [
       '.libraries.yml',
@@ -48,9 +196,6 @@ export default class RecipesCompletionProvider
       '.link_relation_types.yml',
       '/tests/',
     ];
-
-    let type = '';
-    let label = '';
 
     for (const path of files) {
       // Check cache.
@@ -67,37 +212,8 @@ export default class RecipesCompletionProvider
         continue;
       }
 
-      // Check file contents.
-      if (filePath.includes('/recipe.yml')) {
-        type = 'recipe';
-        label = 'Recipe';
-      }
-      else if (filePath.includes('/config/')) {
-        // Exclude config schema.
-        if (filePath.includes('/schema/')) {
-          continue;
-        }
-        type = 'config';
-        label = 'Config';
-      }
-      else if (filePath.includes('/profiles/')) {
-        type = 'profile';
-        label = 'Profile';
-      }
-      else if (filePath.includes('/modules/')) {
-        type = 'module';
-        label = 'Module';
-      }
-      else if (filePath.includes('/themes/')) {
-        type = 'theme';
-        label = 'Theme';
-      }
-      else if (filePath.includes('/default_content/') || filePath.includes('/content/')) {
-        type = 'content';
-        label = 'Content';
-      }
-      else {
-        console.log(`Ignored ${filePath}`);
+      let type = this.detectFileType(filePath);
+      if (type == false) {
         continue;
       }
 
@@ -123,73 +239,7 @@ export default class RecipesCompletionProvider
         }
       }
 
-      // Prepare completion item.
-      let regex = null;
-      let match = null;
-      let insertText = '';
-      let parent = '';
-      let description = '';
-      switch(type) {
-        case 'theme':
-        case 'module':
-        case 'profile':
-          // Extract the module/theme/profile filename.
-          regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
-          match = filePath.match(regex);
-          if (!match) {
-            continue;
-          }
-          insertText = `${match[1]}\n- `;
-          label = `${contents.name} (${label})`;
-          parent = 'install';
-          description = contents.description;
-          break;
-
-        case 'recipe':
-          // Extract the recipe name from filename.
-          regex = /\/([^\/]+)\/recipe\.yml$/;
-          match = filePath.match(regex);
-          if (!match) {
-            continue;
-          }
-          insertText = `${match[1]}\n- `;
-          label = `${contents.name} (${label})`;
-          parent = 'recipes';
-          description = contents.description;
-          break;
-    
-        case 'config':
-          // Extract config name from filename.
-          regex = /\/config\/.*\/([^\/]+)\.yml$/;
-          match = filePath.match(regex);
-          if (!match) {
-            continue;
-          }
-          insertText = `${match[1]}:\n  `;
-          label = `${insertText} (${label})`;
-          parent = 'actions|import';
-          description = 'Config';
-          break;
-
-        case 'content':
-          console.error(`${type} type is not implemented yet.`);
-          break;
-
-        default:
-          console.error(`${type} type was not treated.`);
-      }
-
-      const completion: CompletionItem = {
-        label,
-        detail: parent,
-        documentation: description,
-        insertText: new SnippetString(insertText),
-      };
-
-      completions = [];
-      completions.push(completion);
-
-      this.completionFileCache.set(path.fsPath, completions);
+      this.processCompletionItem(type.toString(), path, contents);
     }
 
     this.completions = ([] as CompletionItem[]).concat(
