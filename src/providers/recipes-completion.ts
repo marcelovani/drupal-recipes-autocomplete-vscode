@@ -12,14 +12,6 @@ import {
 import { parse as parseYaml } from 'yaml';
 import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
 
-export type options = {
-  label: string
-  insertText: string,
-  type: string,
-  documentation: string,
-  parent: string,
-}
-
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
   implements CompletionItemProvider
@@ -47,22 +39,16 @@ export default class RecipesCompletionProvider
   }
 
   async parseYamlFiles() {
-    const completions: CompletionItem[] = [];
+    let completions: CompletionItem[] = [];
     const files =  await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
     const ignore: string[] = [
       '.libraries.yml',
       '.services.yml',
       '.field_type_categories.yml',
       '.link_relation_types.yml',
-      'core.entity',
       '/tests/',
     ];
 
-    // Helper function to check if the file should be skipped.
-    let shouldIgnore = (filePath: string, ignoreList: string[]): boolean => {
-      return ignoreList.some(ignoreItem => filePath.includes(ignoreItem));
-    };
-    
     let type = '';
     let label = '';
 
@@ -75,6 +61,8 @@ export default class RecipesCompletionProvider
       let filePath: string = path.toString();
 
       // Check if file should be skipped.
+      let shouldIgnore = (filePath: string, ignoreList: string[]): boolean => ignoreList.some(ignoreItem => filePath.includes(ignoreItem));
+    
       if (shouldIgnore(filePath, ignore)) {
         continue;
       }
@@ -83,6 +71,14 @@ export default class RecipesCompletionProvider
       if (filePath.includes('/recipe.yml')) {
         type = 'recipe';
         label = 'Recipe';
+      }
+      else if (filePath.includes('/config/')) {
+        // Exclude config schema.
+        if (filePath.includes('/schema/')) {
+          continue;
+        }
+        type = 'config';
+        label = 'Config';
       }
       else if (filePath.includes('/profiles/')) {
         type = 'profile';
@@ -100,16 +96,8 @@ export default class RecipesCompletionProvider
         type = 'content';
         label = 'Content';
       }
-      else if (filePath.includes('/config/')) {
-        // Exclude config schema.
-        if (filePath.includes('/schema/')) {
-          continue;
-        }
-        type = 'config';
-        label = 'Config';
-      }
       else {
-        console.log('Ignored', path);
+        console.log(`Ignored ${filePath}`);
         continue;
       }
 
@@ -120,11 +108,11 @@ export default class RecipesCompletionProvider
         contents = parseYaml(buffer.toString());
       }
       catch(err) {
-        console.error(err);
+        console.error(`Error loading ${filePath}!`);
       }
 
       if (contents == null) {
-        console.error("Cannot parse", path);
+        console.error(`Cannot parse ${filePath}`);
         continue;
       }
 
@@ -145,44 +133,41 @@ export default class RecipesCompletionProvider
         case 'theme':
         case 'module':
         case 'profile':
+          // Extract the module/theme/profile filename.
           regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
           match = filePath.match(regex);
-          if (match) {
-            insertText = match[1];
-          }
-          else {
+          if (!match) {
             continue;
           }
+          insertText = `${match[1]}\n- `;
           label = `${contents.name} (${label})`;
           parent = 'install';
           description = contents.description;
           break;
 
         case 'recipe':
+          // Extract the recipe name from filename.
           regex = /\/([^\/]+)\/recipe\.yml$/;
           match = filePath.match(regex);
-          if (match) {
-            insertText = match[1];
-          }
-          else {
+          if (!match) {
             continue;
           }
+          insertText = `${match[1]}\n- `;
           label = `${contents.name} (${label})`;
           parent = 'recipes';
           description = contents.description;
           break;
     
         case 'config':
+          // Extract config name from filename.
           regex = /\/config\/.*\/([^\/]+)\.yml$/;
           match = filePath.match(regex);
-          if (match) {
-            insertText = match[1];
-          }
-          else {
+          if (!match) {
             continue;
           }
-          label = `${contents.id} (${label})`;
-          parent = 'import';
+          insertText = `${match[1]}:\n  `;
+          label = `${insertText} (${label})`;
+          parent = 'actions|import';
           description = 'Config';
           break;
 
@@ -198,20 +183,25 @@ export default class RecipesCompletionProvider
         label,
         detail: parent,
         documentation: description,
-        insertText: new SnippetString(
-          `${insertText}\n- `
-        ),
+        insertText: new SnippetString(insertText),
       };
 
+      completions = [];
       completions.push(completion);
 
       this.completionFileCache.set(path.fsPath, completions);
     }
 
-    // @todo Investigate why there are multiple duplications.
     this.completions = ([] as CompletionItem[]).concat(
       ...this.completionFileCache.values()
     );
+
+    // Workaround to remove duplicated entries.
+    // @todo Investigate why there are multiple duplications.
+    this.completions = this.completions.filter((item, index, self) => {
+      let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
+      return index === firstOccurrenceIndex;
+    });
   }
 
   getParentAttribute(position: Position):string {
@@ -251,15 +241,8 @@ export default class RecipesCompletionProvider
 
     // Get completions for the parent item.
     let filtered = this.completions.filter((item) =>
-      parentAttribute !== '' && item.detail == parentAttribute
+      parentAttribute !== '' && item.detail?.includes(parentAttribute)
     );
-
-    // Workaround to deal with duplicated entries.
-    // @todo fix the caching and remove this.
-    filtered = filtered.filter((item, index, self) => {
-      let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
-      return index === firstOccurrenceIndex;
-    });
 
     return filtered.map((item) => {
       const newItem = Object.assign({}, item);
