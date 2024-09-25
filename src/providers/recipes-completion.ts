@@ -96,9 +96,6 @@ export default class RecipesCompletionProvider
     let regex = null;
     let match = null;
     let insertText = '';
-    let parent = '';
-    let label = '';
-    let description = '';
     let filePath: string = path.toString();
     switch(type) {
       case 'theme':
@@ -108,11 +105,13 @@ export default class RecipesCompletionProvider
         regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          insertText = `${match[1]}\n- `;
-          label = `${contents.name} (${type.toUpperCase()})`;
-          parent = 'install';
-          description = contents.description;
-          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+          let text = match[1];
+          let label = `${contents.name} (${type.toUpperCase()})`;
+          // Add autocomplete for install. i.e. module/theme name.
+          this.storeCompletionItem(path.fsPath, 'install', label, contents.description, `${text}\n- `);
+          // Also add autocomplete for config.import. i.e. module/theme name.
+          let name = text.split('.')[0]
+          this.storeCompletionItem(path.fsPath, 'import', label, type, `${name}:\n  - `);
         }
         break;
 
@@ -121,11 +120,9 @@ export default class RecipesCompletionProvider
         regex = /\/([^\/]+)\/recipe\.yml$/;
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          insertText = `${match[1]}\n- `;
-          label = `${contents.name} (${type.toUpperCase()})`;
-          parent = 'recipes';
-          description = contents.description;
-          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+          let text = match[1];
+          let label = `${contents.name} (${type.toUpperCase()})`;
+          this.storeCompletionItem(path.fsPath, 'recipes', label, contents.description, `${text}\n- `);
         }
         break;
 
@@ -134,11 +131,13 @@ export default class RecipesCompletionProvider
         regex = /\/config\/.*\/([^\/]+)\.yml$/;
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          insertText = `${match[1]}:\n  `;
-          label = `${insertText} (${type.toUpperCase()})`;
-          parent = 'actions|import';
-          description = 'Config';
-          this.storeCompletionItem(path.fsPath, label, parent, description, insertText);
+          let text = match[1];
+          let label = `${text} (${type.toUpperCase()})`;
+          this.storeCompletionItem(path.fsPath, 'actions', label, 'Config', `${text}:\n  `);
+          // Also add autocomplete for config.import.module_name. i.e. the config id.
+          // @todo: This is not working, we need to list the available configs, not the name of the config.
+          let name = text.split('.')[0]
+          this.storeCompletionItem(path.fsPath, name, label, 'Config', `${text}:\n  `);
         }
         break;
 
@@ -156,24 +155,30 @@ export default class RecipesCompletionProvider
    * 
    * @param string key
    *   The cache key.
+   * @param string parent
+   *   Used to store the key of the parent item.
    * @param string label
    *   The label.
-   * @param string detail
-   *   Used to store the key of the parent.
    * @param string documentation
    *   The documentation.
    * @param string insertText
    *   The text to be inserted.
    */
-  storeCompletionItem(key: string, label: string, detail: string, documentation: string, insertText: string) {
+  storeCompletionItem(key: string, parent: string, label: string, documentation: string, insertText: string) {
     const completion: CompletionItem = {
       label,
-      detail,
+      detail: parent,
       documentation,
       insertText: new SnippetString(insertText),
     };
 
     let completions: CompletionItem[] = [];
+    
+    // Merge with existing cache items.
+    let cached = this.completionFileCache.get(key);
+    if (cached) {
+      completions = cached;
+    }
     completions.push(completion);
 
     this.completionFileCache.set(key, completions);
@@ -187,7 +192,7 @@ export default class RecipesCompletionProvider
    * @todo Move this function to a separate file.
    */
   async parseYamlFiles() {
-    
+    // this.completionFileCache.clear(); //@todo remove temporary fix.
     const files =  await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
     const ignore: string[] = [
       '.libraries.yml',
@@ -248,10 +253,10 @@ export default class RecipesCompletionProvider
 
     // Workaround to remove duplicated entries.
     // @todo Investigate why there are multiple duplications.
-    this.completions = this.completions.filter((item, index, self) => {
-      let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
-      return index === firstOccurrenceIndex;
-    });
+    // this.completions = this.completions.filter((item, index, self) => {
+    //   let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
+    //   return index === firstOccurrenceIndex;
+    // });
   }
 
   getParentAttribute(position: Position):string {

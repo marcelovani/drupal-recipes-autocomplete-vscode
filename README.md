@@ -19,3 +19,7 @@ VS Code extension that provides autocomplete for Drupal Recipes
 - Use schemas to provide autocomplete items, depends on https://www.drupal.org/project/distributions_recipes/issues/3475786
 - Automatically generate composer.json for the Recipe
 - Support Default Content
+- Do not show autocomplete items that are already in the Recipe
+- Finish autocomplete for Actions and all child items
+- Fix autocomplete for items that are not directly below the parent, see getParentAttribute()
+
