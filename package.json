@@ -3,7 +3,7 @@
   "displayName": "Drupal Recipes Autocomplete for VS Code",
   "description": "Autocomplete for Drupal Recipes",
   "author": "Marcelo Vani",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.93.0"
