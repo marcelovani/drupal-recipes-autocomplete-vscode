@@ -41,6 +41,12 @@
   * The provided test runner will only consider files matching the name pattern `**.test.ts`.
   * You can create folders inside the `test` folder to structure your tests any way you want.
 
+## Compiling
+- npm install -g vsce
+- vsce verify
+- vsce package
+- vsce publish 1.0.1
+
 ## Go further
 
 * Reduce the extension size and improve the startup time by [bundling your extension](https://code.visualstudio.com/api/working-with-extensions/bundling-extension).

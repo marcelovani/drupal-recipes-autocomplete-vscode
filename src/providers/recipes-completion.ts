@@ -111,7 +111,7 @@ export default class RecipesCompletionProvider
           this.storeCompletionItem(path.fsPath, 'install', label, contents.description, `${text}\n- `);
           // Also add autocomplete for config.import. i.e. module/theme name.
           let name = text.split('.')[0]
-          this.storeCompletionItem(path.fsPath, 'import', label, type, `${name}:\n  - `);
+          this.storeCompletionItem(path.fsPath, 'import', label, type, `${name}:\n- `);
         }
         break;
 
