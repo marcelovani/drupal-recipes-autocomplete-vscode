@@ -2,6 +2,8 @@
   "name": "drupal-recipes-autocomplete-vscode",
   "displayName": "Drupal Recipes Autocomplete for VS Code",
   "description": "Autocomplete for Drupal Recipes",
+  "publisher": "marcelovani",
+  "icon": "docs/icon.png",
   "author": "Marcelo Vani",
   "version": "1.0.1",
   "license": "MIT",
