@@ -17,8 +17,8 @@ VS Code extension that provides autocomplete for Drupal Recipes
 https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
 
 ## TODO
-- List the extension in the Marketplace https://marketplace.visualstudio.com/
 - List the extension as NPM package in https://www.npmjs.com/
+- Add extension icon in package.json
 - Use schemas to provide autocomplete items, depends on https://www.drupal.org/project/distributions_recipes/issues/3475786
 - Automatically generate composer.json for the Recipe
 - Support Default Content
