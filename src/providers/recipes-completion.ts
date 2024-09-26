@@ -50,6 +50,15 @@ export default class RecipesCompletionProvider
   detectFileType(filePath: string): string | boolean {
     let type = '';
 
+    const mapping = [
+      {
+        "/recipe.yml": "recipe",
+      },
+      {
+        "/recipe.yml": "recipe",
+      },
+    ]
+
     // Check file contents.
     if (filePath.includes('/recipe.yml')) {
       type = 'recipe';
