@@ -24,6 +24,7 @@ export default class RecipesCompletionProvider
 
   constructor(arg: ConstructorParameters<typeof DrupalWorkspaceProvider>[0]) {
     super(arg);
+    console.log(arg);
 
     this.disposables.push(
       languages.registerCompletionItemProvider(
@@ -48,46 +49,36 @@ export default class RecipesCompletionProvider
    *   Returns the file type or false.
    */
   detectFileType(filePath: string): string | boolean {
-    let type = '';
-
+    // List of types, the order is important, for example:
+    // A profile can contain modules, so we need to test for modules firt.
     const mapping = [
-      {
-        "/recipe.yml": "recipe",
-      },
-      {
-        "/recipe.yml": "recipe",
-      },
-    ]
+      { "/recipe.yml": "recipe" },
+      { "/config/": "config" },
+      { "/modules/": "module" },
+      { "/themes/": "theme" },
+      { "/profiles/": "profile" },
+      { "/default_content/": "content" },
+      { "/content/": "content" },
+    ];
 
-    // Check file contents.
-    if (filePath.includes('/recipe.yml')) {
-      type = 'recipe';
-    }
-    else if (filePath.includes('/config/')) {
-      // Exclude config schema.
-      if (filePath.includes('/schema/')) {
-        return false;
+    // Check if the file path matches any of the items in the mapping.
+    const findValueByKey = (mapping: any[], filePath: string): string | boolean => {
+      for (const item of mapping) {
+        for (const [key, type] of Object.entries(item)) {
+          if (filePath.includes(key)) {
+            // Exception.
+            if (type === 'config' && filePath.includes('/schema/')) {
+              return false;
+            }
+            return type!.toString();
+          }
+        }
       }
-      type = 'config';
-    }
-    else if (filePath.includes('/profiles/')) {
-      type = 'profile';
-    }
-    else if (filePath.includes('/modules/')) {
-      type = 'module';
-    }
-    else if (filePath.includes('/themes/')) {
-      type = 'theme';
-    }
-    else if (filePath.includes('/default_content/') || filePath.includes('/content/')) {
-      type = 'content';
-    }
-    else {
-      console.log(`Ignored ${filePath}`);
+      console.log(`Excluded ${filePath}`);
       return false;
-    }
+    };
 
-    return type;
+    return findValueByKey(mapping, filePath);
   }
 
   /**
@@ -104,7 +95,6 @@ export default class RecipesCompletionProvider
     // Prepare completion item.
     let regex = null;
     let match = null;
-    let insertText = '';
     let filePath: string = path.toString();
     switch(type) {
       case 'theme':
@@ -117,10 +107,10 @@ export default class RecipesCompletionProvider
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
           // Add autocomplete for install. i.e. module/theme name.
-          this.storeCompletionItem(path.fsPath, 'install', label, contents.description, `${text}\n- `);
+          this.storeCompletionItem(filePath, 'install', label, contents.description, `${text}\n- `);
           // Also add autocomplete for config.import. i.e. module/theme name.
-          let name = text.split('.')[0]
-          this.storeCompletionItem(path.fsPath, 'import', label, type, `${name}:\n- `);
+          let name = text.split('.')[0];
+          this.storeCompletionItem(filePath, 'import', label, type, `${name}:\n  - `);
         }
         break;
 
@@ -131,7 +121,7 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
-          this.storeCompletionItem(path.fsPath, 'recipes', label, contents.description, `${text}\n- `);
+          this.storeCompletionItem(filePath, 'recipes', label, contents.description, `${text}\n- `);
         }
         break;
 
@@ -142,11 +132,11 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${text} (${type.toUpperCase()})`;
-          this.storeCompletionItem(path.fsPath, 'actions', label, 'Config', `${text}:\n  `);
+          this.storeCompletionItem(filePath, 'actions', label, 'Config', `${text}:\n  `);
           // Also add autocomplete for config.import.module_name. i.e. the config id.
           // @todo: This is not working, we need to list the available configs, not the name of the config.
-          let name = text.split('.')[0]
-          this.storeCompletionItem(path.fsPath, name, label, 'Config', `${text}:\n  `);
+          let name = text.split('.')[0];
+          this.storeCompletionItem(filePath, name, label, 'Config', `${text}\n- `);
         }
         break;
 
@@ -162,8 +152,8 @@ export default class RecipesCompletionProvider
   /**
    * Stores autocomplete item in cache.
    * 
-   * @param string key
-   *   The cache key.
+   * @param string path
+   *   The file path.
    * @param string parent
    *   Used to store the key of the parent item.
    * @param string label
@@ -173,9 +163,9 @@ export default class RecipesCompletionProvider
    * @param string insertText
    *   The text to be inserted.
    */
-  storeCompletionItem(key: string, parent: string, label: string, documentation: string, insertText: string) {
+  storeCompletionItem(path: string, parent: string, label: string, documentation: string, insertText: string) {
     const completion: CompletionItem = {
-      label,
+      label: `${label}`,
       detail: parent,
       documentation,
       insertText: new SnippetString(insertText),
@@ -184,13 +174,13 @@ export default class RecipesCompletionProvider
     let completions: CompletionItem[] = [];
     
     // Merge with existing cache items.
-    let cached = this.completionFileCache.get(key);
+    let cached = this.completionFileCache.get(path);
     if (cached) {
       completions = cached;
     }
     completions.push(completion);
 
-    this.completionFileCache.set(key, completions);
+    this.completionFileCache.set(path, completions);
   }
 
   /**
@@ -201,23 +191,29 @@ export default class RecipesCompletionProvider
    * @todo Move this function to a separate file.
    */
   async parseYamlFiles() {
-    // this.completionFileCache.clear(); //@todo remove temporary fix.
     const files =  await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
+    // List of types that are not supported yet.
     const ignore: string[] = [
       '.libraries.yml',
       '.services.yml',
       '.field_type_categories.yml',
+      '.breakpoints.yml',
+      '.starterkit.yml',
       '.link_relation_types.yml',
+      '_action.yml',
+      '.menu.yml',
       '/tests/',
+      '/components/',
     ];
 
     for (const path of files) {
+      let filePath: string = path.toString();
+
       // Check cache.
-      if (this.completionFileCache.get(path.fsPath)) {
+      if (this.completionFileCache.has(filePath)) {
+        this.completionFileCache.delete(filePath);
         continue;
       }
-
-      let filePath: string = path.toString();
 
       // Check if file should be skipped.
       let shouldIgnore = (filePath: string, ignoreList: string[]): boolean => ignoreList.some(ignoreItem => filePath.includes(ignoreItem));
@@ -227,7 +223,7 @@ export default class RecipesCompletionProvider
       }
 
       let type = this.detectFileType(filePath);
-      if (type == false) {
+      if (type === false) {
         continue;
       }
 
@@ -238,16 +234,16 @@ export default class RecipesCompletionProvider
         contents = parseYaml(buffer.toString());
       }
       catch(err) {
-        console.error(`Error loading ${filePath}!`);
+        // Ignore the error, we will test the contents below.
       }
 
-      if (contents == null) {
+      if (contents === null) {
         console.error(`Cannot parse ${filePath}`);
         continue;
       }
 
-      if (type == 'module' || type == 'theme') {
-        if (typeof contents.hidden !== 'undefined' && contents.hidden == 'true') {
+      if (type === 'module' || type === 'theme') {
+        if (typeof contents.hidden !== 'undefined' && contents.hidden === 'true') {
           // Exclude hidden modules.
           continue;
         }
@@ -269,26 +265,30 @@ export default class RecipesCompletionProvider
   }
 
   getParentAttribute(position: Position):string {
-      // @todo find parent based on indentation
-      if (position.character == 0) {
+      if (position.character === 0) {
         return '';
       }
 
       let line = position.line;
       let match = null;
+
       do {
-        let attribute = window.activeTextEditor?.document
-          .lineAt(line)
-          .text.substring(0, 1000).trim();
+        line--;
+        let attribute = window.activeTextEditor?.document.lineAt(line);
 
-        // Use regex to match text before colon.
-        // @todo trim spaces on the left using regex.
-        match = attribute?.toString().match(/(\w+):/);
+        // Check if the column position of the attribute is grater than the cursor position.
+        const spaces = attribute?.text.match(/^ */);
+        if (spaces) {
+          let attributePosition = spaces[0].length;
+          if (attributePosition < position.character) {
+            // Use regex to match text before colon.
+            match = attribute?.text.trim().match(/(\w+):/);
+          }
+        }
 
-        // Keep going up until we find the parent attribute.
-        line--;          
-      } while (!match || line == 0);
+      } while (line > 0 && !match);
 
+      console.log(match);
       return match ? match[1] : '';
   }
 

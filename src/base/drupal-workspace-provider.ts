@@ -1,7 +1,5 @@
 import Disposable from '../disposable';
 import {
-  FileSystemWatcher,
-  RelativePattern,
   workspace,
   WorkspaceConfiguration,
 } from 'vscode';

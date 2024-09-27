@@ -24,4 +24,4 @@ https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
 - Do not show autocomplete items that are already in the Recipe
 - Finish autocomplete for Actions and all child items
 - Fix autocomplete for items that are not directly below the parent, see getParentAttribute()
-
+- Add unit tests
