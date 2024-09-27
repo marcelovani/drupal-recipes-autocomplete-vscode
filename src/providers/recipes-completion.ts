@@ -24,7 +24,6 @@ export default class RecipesCompletionProvider
 
   constructor(arg: ConstructorParameters<typeof DrupalWorkspaceProvider>[0]) {
     super(arg);
-    console.log(arg);
 
     this.disposables.push(
       languages.registerCompletionItemProvider(
@@ -165,7 +164,7 @@ export default class RecipesCompletionProvider
    */
   storeCompletionItem(path: string, parent: string, label: string, documentation: string, insertText: string) {
     const completion: CompletionItem = {
-      label: `${label}`,
+      label,
       detail: parent,
       documentation,
       insertText: new SnippetString(insertText),
@@ -288,7 +287,6 @@ export default class RecipesCompletionProvider
 
       } while (line > 0 && !match);
 
-      console.log(match);
       return match ? match[1] : '';
   }
 
