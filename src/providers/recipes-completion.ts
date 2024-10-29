@@ -254,13 +254,6 @@ export default class RecipesCompletionProvider
     this.completions = ([] as CompletionItem[]).concat(
       ...this.completionFileCache.values()
     );
-
-    // Workaround to remove duplicated entries.
-    // @todo Investigate why there are multiple duplications.
-    // this.completions = this.completions.filter((item, index, self) => {
-    //   let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
-    //   return index === firstOccurrenceIndex;
-    // });
   }
 
   getParentAttribute(position: Position):string {
@@ -305,6 +298,13 @@ export default class RecipesCompletionProvider
     let filtered = this.completions.filter((item) =>
       parentAttribute !== '' && item.detail?.includes(parentAttribute)
     );
+
+    // Workaround to remove duplicated entries.
+    // @todo Investigate why there are multiple duplications.
+    filtered = filtered.filter((item, index, self) => {
+      let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
+      return index === firstOccurrenceIndex;
+    });
 
     return filtered.map((item) => {
       const newItem = Object.assign({}, item);
