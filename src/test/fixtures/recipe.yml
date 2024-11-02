@@ -1,0 +1,226 @@
+name: 'Test'
+description: 'This recipe is used to test and validate the yml using Json Schema.'
+type: Administration
+recipes:
+  - article_content_type
+  - comment_base
+install:
+  - image
+  - node
+  - path
+content:
+  - articles
+config:
+  import:
+    node:
+      # @TODO: Add suggestions from config/import folder, see https://github.com/marcelovani/drupal-recipes-autocomplete-vscode/issues/6
+      - core.entity_view_mode.node.full
+      - core.entity_view_mode.node.rss
+      - core.entity_view_mode.node.teaser
+    image:
+      - image.settings
+      - image.style.large
+      - image.style.large_3_2_2x
+      - image.style.wide
+    field:
+      - field.field.block_content.banner_block.field_content_link
+  actions:
+    forum.settings:
+      set:
+        # @TODO: Suggest property_name based on the config items.
+        property_name: vocabulary
+        value: forum
+    system.site:
+      setMultiple:
+        - 
+          property_name: name
+          value: "Example"
+        - 
+          property_name: slogan
+          value: "Created using Recipes"
+    image.style.large:
+      cloneAs: thumbnail_widescreen
+    config_test.dynamic.recipe.create:
+      create:
+        # @TODO: Suggest config items.
+        label: 'Created by recipe'
+      setProtectedProperty: 'Set by recipe'
+    config_test.dynamic.recipe.createifnot:
+      createIfNotExists:
+        # @TODO: Suggest config items.
+        label: 'Created by recipe'
+    node.type.*:
+      createForEach:
+        language.content_settings.node.%bundle:
+          # @TODO: Suggest config items.
+          target_entity_type_id: node
+          target_bundle: '%bundle'
+      createForEachIfNotExists:
+        language.content_settings.node.%bundle:
+          target_entity_type_id: node
+          target_bundle: '%bundle'
+    core.menu.static_menu_link_overrides:
+      simpleConfigUpdate:
+        # @TODO: Suggest config items.
+        definitions.contact__site_page:
+          menu_name: footer
+          parent: ''
+          weight: 0
+          expanded: false
+          enabled: true
+    block.block.claro_page_title:
+      set:
+        property_name: theme
+        value: olivero
+      setMultiple:
+        - 
+          property_name: region
+          value: footer
+        - 
+          property_name: provider
+          value: block
+      simpleConfigUpdate:
+        plugin: block
+      createIfNotExists:
+        # @TODO: Suggest config items.
+        theme: claro
+        region: header
+        weight: -30
+        provider: null
+        plugin: page_title_block
+        settings:
+          id: page_title_block
+          label: 'Page title'
+          label_display: '0'
+          provider: core
+        visibility: {  }
+      placeBlockInDefaultTheme:
+        # @TODO: Suggest config items.
+        id: foo
+        region: 
+          bootstrap: footer
+          olivero: footer_top
+        default_region: content
+        position: first
+        plugin: system_powered_by_block
+      setRegion: header
+      setStatus: true
+      setWeight: -30
+    core.entity_form_display.node.article.default:
+      createIfNotExists:
+        targetEntityType: node
+        bundle: article
+        mode: default
+        status: true
+      setComponents:
+        - name: body
+          options:
+            type: text_textarea_with_summary
+            weight: 2
+            region: content
+        - name: created
+          options:
+            type: datetime_timestamp
+            weight: 10
+            region: content
+    core.entity_view_display.node.article.default:
+      createIfNotExists:
+        targetEntityType: node
+        bundle: article
+        mode: default
+        status: true
+      setComponents:
+        - name: body
+          options:
+            type: text_default
+            label: hidden
+            weight: 0
+            region: content
+        - name: field_image
+          options:
+            type: image
+            label: hidden
+            settings:
+              image_style: wide
+              image_loading:
+                attribute: eager
+            weight: -1
+            region: content
+      # @TODO: Suggest config items.
+      hideComponent: uid
+      hideComponents:
+        # @TODO: Suggest config items.
+        - uid
+        - path
+        - foo
+      setThirdPartySetting:
+        # @TODO: Suggest config items.
+        module: layout_builder
+        key: enabled
+        value: true
+      setThirdPartySettings:
+        - module: layout_builder
+          key: enabled
+          value: false
+    contact.form.feedback:
+      createIfNotExists:
+        langcode: es
+        status: true
+        dependencies: {  }
+        id: personal
+        label: 'Personal contact form'
+        recipients: {  }
+        reply: ''
+        weight: 0
+        message: 'Your message has been sent.'
+        redirect: ''
+      simpleConfigUpdate:
+        langcode: en
+    editor.editor.basic_html:
+      createIfNotExists:
+        settings:
+          toolbar:
+            items:
+              - bold
+              - italic
+              - '|'
+              - link
+              - '|'
+              - bulletedList
+        simpleConfigUpdate:
+          format: basic_html
+    field.field.block_content.banner_block.field_content_link:
+      setDescription: 'Link'
+    field.storage.block_content.field_content_link:
+      setMultiple:
+        - property_name: entity_type
+          value: block_content
+        - property_name: entity_type
+          value: type
+    workflows.workflow.editorial:
+      addNodeTypes:
+        - page
+        - article
+      addTaxonomyVocabularies: '*'
+    user.role.authenticated:
+      grantPermissions:
+        # @TODO: Suggest config items.
+        - 'access content'
+        - 'delete own files'
+    user.role.content_editor:
+      grantPermissions:
+        - 'access content overview'
+        - 'access contextual links'
+        - 'access files overview'
+      grantPermissionsForEachNodeType:
+        - 'create %bundle content'
+        - 'delete %bundle revisions'
+        - 'delete own %bundle content'
+    user.settings:
+      simpleConfigUpdate:
+        verify_mail: true
+        register: visitors_admin_approval
+        cancel_method: user_cancel_block
+      set:
+        property_name: verify_mail
+        value: true
