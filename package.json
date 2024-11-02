@@ -44,7 +44,8 @@
     "yamlValidation": [
       {
         "fileMatch": "recipe.yml",
-        "url": "file:///Users/marcelo.vani/Development/Projects/Recipes/schemastore/src/schemas/json/drupal-recipe.json"
+        "url": "https://raw.githubusercontent.com/marcelovani/schemastore/refs/heads/drupal-recipes/src/schemas/json/drupal-recipe.json",
+        "$local": "file:///Users/marcelo.vani/Development/Projects/Recipes/schemastore/src/schemas/json/drupal-recipe.json"
       }
     ],
     "configuration": {},
