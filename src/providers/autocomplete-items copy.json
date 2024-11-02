@@ -1,0 +1,48 @@
+{
+    "$comment": "This file provides a mapping to fill in the items that are dynamic and cannot be automatically completed using just Json Schema. It uses placeholders to provide the information about what type of data to be fetched.",
+    "config": {
+        "install": {},
+        "action": {
+            "set": {
+                "property_name": "getConfigItems()"
+            },
+            "block.block.*": {
+                "createIfNotExists": "getConfigItems()",
+                "placeBlockInDefaultTheme": {
+                    "id": "getBlockId()",
+                    "region": {
+                        "getThemeNames()": "getRegionNames()"
+                    },
+                    "default_region": "getRegionNames()",
+                    "plugin": "getPluginName()"
+                },
+                "placeBlockInAdminTheme": {
+                    "id": "getBlockId()",
+                    "region": {
+                        "getThemeNames()": "getRegionNames()"
+                    },
+                    "default_region": "getRegionNames()",
+                    "plugin": "getPluginName()"
+                },
+                "setRegion": "getRegionNames()"
+            },
+            "core.entity_form_display.*.*.*": {
+                "hideComponent": "getComponentNames()",
+                "hideComponents": [
+                    "getComponentNames()"
+                ]
+            },
+            "core.entity_view_display.*.*.*": {
+                "hideComponent": "getComponentNames()",
+                "hideComponents": [
+                    "getComponentNames()"
+                ]
+            },
+            "user.role.*": {
+                "grantPermissions": {
+                    "callback": "getUserPermissions()"
+                }
+            }
+        }
+    }
+}

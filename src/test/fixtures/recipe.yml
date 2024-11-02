@@ -4,10 +4,13 @@ type: Administration
 recipes:
   - article_content_type
   - comment_base
+  - audio_media_type
+  - image_media_type
 install:
   - image
   - node
   - path
+  - media
 content:
   - articles
 config:
@@ -24,6 +27,8 @@ config:
       - image.style.wide
     field:
       - field.field.block_content.banner_block.field_content_link
+    media:
+      - media.settings
   actions:
     forum.settings:
       set:
