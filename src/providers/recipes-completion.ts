@@ -15,8 +15,7 @@ import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
 
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
-  implements CompletionItemProvider
-{
+  implements CompletionItemProvider {
   static language = 'yaml';
 
   completions: CompletionItem[] = [];
@@ -95,7 +94,7 @@ export default class RecipesCompletionProvider
     let regex = null;
     let match = null;
     let filePath: string = path.toString();
-    switch(type) {
+    switch (type) {
       case 'theme':
       case 'module':
       case 'profile':
@@ -105,11 +104,13 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
+
           // Add autocomplete for install. i.e. module/theme name.
           this.storeCompletionItem(filePath, 'install', label, contents.description, `${text}\n- `);
+
           // Also add autocomplete for config.import. i.e. module/theme name.
           let name = text.split('.')[0];
-          this.storeCompletionItem(filePath, 'import', label, type, `${name}:\n  - `);
+          this.storeCompletionItem(filePath, 'import', label, contents.description, `${name}:\n  - `);
         }
         break;
 
@@ -165,13 +166,15 @@ export default class RecipesCompletionProvider
   storeCompletionItem(path: string, parent: string, label: string, documentation: string, insertText: string) {
     const completion: CompletionItem = {
       label,
+      // We use detail to tell what is the parent item. @TODO: We should find a better way to store
+      // this info and use detail for the purpose of showing details when the pop up opens.
       detail: parent,
       documentation,
       insertText: new SnippetString(insertText),
     };
 
     let completions: CompletionItem[] = [];
-    
+
     // Merge with existing cache items.
     let cached = this.completionFileCache.get(path);
     if (cached) {
@@ -190,7 +193,7 @@ export default class RecipesCompletionProvider
    * @todo Move this function to a separate file.
    */
   async parseYamlFiles() {
-    const files =  await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
+    const files = await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
     // List of types that are not supported yet.
     const ignore: string[] = [
       '.libraries.yml',
@@ -216,7 +219,7 @@ export default class RecipesCompletionProvider
 
       // Check if file should be skipped.
       let shouldIgnore = (filePath: string, ignoreList: string[]): boolean => ignoreList.some(ignoreItem => filePath.includes(ignoreItem));
-    
+
       if (shouldIgnore(filePath, ignore)) {
         continue;
       }
@@ -232,7 +235,7 @@ export default class RecipesCompletionProvider
         let buffer = await workspace.fs.readFile(path);
         contents = parseYaml(buffer.toString());
       }
-      catch(err) {
+      catch (err) {
         // Ignore the error, we will test the contents below.
       }
 
@@ -256,31 +259,31 @@ export default class RecipesCompletionProvider
     );
   }
 
-  getParentAttribute(position: Position):string {
-      if (position.character === 0) {
-        return '';
+  getParentAttribute(position: Position): string {
+    if (position.character === 0) {
+      return '';
+    }
+
+    let line = position.line;
+    let match = null;
+
+    do {
+      line--;
+      let attribute = window.activeTextEditor?.document.lineAt(line);
+
+      // Check if the column position of the attribute is grater than the cursor position.
+      const spaces = attribute?.text.match(/^ */);
+      if (spaces) {
+        let attributePosition = spaces[0].length;
+        if (attributePosition < position.character) {
+          // Use regex to match text before colon.
+          match = attribute?.text.trim().match(/(\w+):/);
+        }
       }
 
-      let line = position.line;
-      let match = null;
+    } while (line > 0 && !match);
 
-      do {
-        line--;
-        let attribute = window.activeTextEditor?.document.lineAt(line);
-
-        // Check if the column position of the attribute is grater than the cursor position.
-        const spaces = attribute?.text.match(/^ */);
-        if (spaces) {
-          let attributePosition = spaces[0].length;
-          if (attributePosition < position.character) {
-            // Use regex to match text before colon.
-            match = attribute?.text.trim().match(/(\w+):/);
-          }
-        }
-
-      } while (line > 0 && !match);
-
-      return match ? match[1] : '';
+    return match ? match[1] : '';
   }
 
   async provideCompletionItems(document: TextDocument, position: Position) {
