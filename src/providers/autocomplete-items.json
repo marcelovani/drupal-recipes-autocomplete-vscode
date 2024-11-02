@@ -1,0 +1,43 @@
+{
+    "$comment": "This file provides a mapping to fill in the items that are dynamic and cannot be automatically completed using just Json Schema. It uses placeholders to provide the information about what type of data to be fetched.",
+    "config": {
+        "install": {},
+        "action": {
+            "set": {
+                "$comment": "Provides suggestions for the config in context.",
+                "property_name": "getConfigItems()"
+            },
+            "create": "getConfigItems()",
+            "createIfNotExists": "getConfigItems()",
+            "simpleConfigUpdate": "getConfigItems()",
+            "placeBlockInDefaultTheme": {
+                "id": "getBlockId()",
+                "region": {
+                    "getThemeNames()": "getRegionNames()"
+                },
+                "default_region": "getRegionNames()",
+                "plugin": "getPluginName()"
+            },
+            "placeBlockInAdminTheme": {
+                "id": "getBlockId()",
+                "region": {
+                    "getThemeNames()": "getRegionNames()"
+                },
+                "default_region": "getRegionNames()",
+                "plugin": "getPluginName()"
+            },
+            "setRegion": "getRegionNames()",
+            "hideComponent": "getComponentNames()",
+            "hideComponents": [
+                "getComponentNames()"
+            ],
+            "grantPermission": {
+                "callback": "getUserPermissions()"
+            },
+            "setThirdPartySetting": {
+                "module": "getModuleNames()",
+                "key": "getConfigItems()"
+            }
+        }
+    }
+}
