@@ -37,7 +37,9 @@
             "setThirdPartySetting": {
                 "module": "getModuleNames()",
                 "key": "getConfigItems()"
-            }
+            },
+            "grantPermissionsForEachTaxonomyVocabulary": "getVocabularies()",
+            "grantPermissionsForEachMediaType": "getMediaTypes()"
         }
     }
 }

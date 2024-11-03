@@ -29,7 +29,7 @@ export default class RecipesCompletionProvider
         {
           language: RecipesCompletionProvider.language,
           scheme: 'file',
-          pattern: this.drupalWorkspace.getRelativePattern('**/recipe.yml'),
+          pattern: this.drupalWorkspace.getRelativePattern('**/recipe.{yml,yaml}'),
         },
         this
       )
@@ -51,6 +51,7 @@ export default class RecipesCompletionProvider
     // A profile can contain modules, so we need to test for modules firt.
     const mapping = [
       { "/recipe.yml": "recipe" },
+      { "/recipe.yaml": "recipe" },
       { "/config/": "config" },
       { "/modules/": "module" },
       { "/themes/": "theme" },
