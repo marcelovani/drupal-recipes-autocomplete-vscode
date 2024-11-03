@@ -5,13 +5,18 @@ VS Code extension that provides autocomplete for Drupal Recipes
 
 ## Features
 
-- Autocomplete for recipe.yml.
+- Provides autocomplete suggestions for Drupal recipes.
+- Provides validation for recipe.yml.
 
 ## Instructions
 
 - Enable the extension in VS Code as usual
 - Create a file called recipe.yml inside a folder on an existing Drupal codebase. The extension will provide autocomplete functionality fetching details from the Drupal codebase.
 - To trigger autocomplete, use ^ + Space.
+
+## Contribute
+
+Contributions are more than welcome! Read [CONTRIBUTING.md](./CONTRIBUTING.md) for more information.
 
 ## Repository
 https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
@@ -22,6 +27,4 @@ https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
 - Automatically generate composer.json for the Recipe
 - Support Default Content
 - Do not show autocomplete items that are already in the Recipe
-- Finish autocomplete for Actions and all child items
-- Fix autocomplete for items that are not directly below the parent, see getParentAttribute()
 - Add unit tests
