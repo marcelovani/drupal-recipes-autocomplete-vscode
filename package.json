@@ -8,7 +8,7 @@
   "version": "1.0.5",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.93.0"
+    "vscode": "^1.95.0"
   },
   "repository": {
     "url": "https://github.com/marcelovani/drupal-recipes-autocomplete-vscode.git",
@@ -43,7 +43,10 @@
     ],
     "yamlValidation": [
       {
-        "fileMatch": ["recipe.yml", "recipe.yaml"],
+        "fileMatch": [
+          "recipe.yml",
+          "recipe.yaml"
+        ],
         "url": "https://raw.githubusercontent.com/marcelovani/schemastore/refs/heads/drupal-recipes/src/schemas/json/drupal-recipe.json",
         "$local": "file:///Users/marcelo.vani/Development/Projects/Recipes/schemastore/src/schemas/json/drupal-recipe.json"
       }
@@ -65,18 +68,18 @@
   },
   "devDependencies": {
     "@types/mocha": "^10.0.9",
-    "@types/node": "^20.17.5",
+    "@types/node": "^20.17.6",
     "@types/vscode": "^1.95.0",
     "@typescript-eslint/eslint-plugin": "^8.12.2",
     "@typescript-eslint/parser": "^8.12.2",
     "@vscode/test-cli": "^0.0.10",
     "@vscode/test-electron": "^2.4.1",
     "eslint": "^9.14.0",
+    "schemastore.org": "git+https://github.com/SchemaStore/schemastore.git",
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
     "webpack": "^5.96.1",
-    "webpack-cli": "^5.1.4",
-    "schemastore.org": "git+https://github.com/SchemaStore/schemastore.git"
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
     "yaml": "^2.6.0"
