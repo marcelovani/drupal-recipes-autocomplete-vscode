@@ -5,20 +5,20 @@ import * as fs from 'fs';
 // import { workspace } from "vscode";
 import getDrupalWorkspaces from '../../utils/workspace';
 import RecipesCompletionProvider, * as extension from '../../providers/recipes-completion';
-import DrupalWorkspace from "../../base/drupal-workspace";
+import DrupalWorkspace from '../../base/drupal-workspace';
 
 const getRelativePath = (path: string) => {
-    return path.replace(`${vscode.workspace.rootPath}/`, '')
-}
+  return path.replace(`${vscode.workspace.rootPath}/`, '');
+};
 
 const openFile = (relativePath: string) => {
-    var openPath = vscode.Uri.file(
-        `${vscode.workspace.rootPath}/${relativePath}`
-    )
-    vscode.workspace.openTextDocument(openPath).then((doc) => {
-        vscode.window.showTextDocument(doc)
-    })
-}
+  var openPath = vscode.Uri.file(
+    `${vscode.workspace.rootPath}/${relativePath}`
+  );
+  vscode.workspace.openTextDocument(openPath).then((doc) => {
+    vscode.window.showTextDocument(doc);
+  });
+};
 
 suite('Extension Test Suite', async () => {
   vscode.window.showInformationMessage('Start all tests.');
@@ -26,10 +26,10 @@ suite('Extension Test Suite', async () => {
   function enterText(row: number, col: number, text: string) {
     const editor = vscode.window.activeTextEditor;
     if (editor) {
-        editor.edit(editBuilder => {
-            // editBuilder.insert(editor.selection.active, text);
-            editBuilder.insert(new vscode.Position(row, col), text);
-        });
+      editor.edit((editBuilder) => {
+        // editBuilder.insert(editor.selection.active, text);
+        editBuilder.insert(new vscode.Position(row, col), text);
+      });
     }
   }
 
@@ -43,9 +43,9 @@ suite('Extension Test Suite', async () => {
 
   function fromActiveTextEditor() {
     if (vscode.window.activeTextEditor) {
-        return getRelativePath(
-            vscode.window.activeTextEditor.document.uri.fsPath
-        )
+      return getRelativePath(
+        vscode.window.activeTextEditor.document.uri.fsPath
+      );
     }
   }
 
@@ -53,7 +53,6 @@ suite('Extension Test Suite', async () => {
     // let workspaceFolders = vscode.workspace.workspaceFolders?? [];
     // console.log("DEBUG","workspaceFolders", workspaceFolders);
     // sleep(1000);
-
 
     // let workspaceFolder = workspaceFolders[0].uri.fsPath;
     // const filePath = path.join(workspaceFolder, 'recipe.yml');
@@ -69,14 +68,14 @@ suite('Extension Test Suite', async () => {
     // sleep(1000);
 
     const file = vscode.Uri.file(filePath);
-    console.log("DEBUG","file", file);
+    console.log('DEBUG', 'file', file);
 
     // sleep(1000);
 
     // Save the document to the specified file path
     const writeData = new Uint8Array(Buffer.from(`# Recipe test.\n`));
     await vscode.workspace.fs.writeFile(vscode.Uri.file(filePath), writeData);
-    // return;    
+    // return;
     // let editor = vscode.window.activeTextEditor;
     // if (!editor) {
     //     vscode.window.showWarningMessage('You must have an open editor window to convert an OpenAPI document');
@@ -85,13 +84,9 @@ suite('Extension Test Suite', async () => {
 
     // console.log("DEBUG editor file", fromActiveTextEditor());
 
-    fs.openSync(file.fsPath, "r");
+    fs.openSync(file.fsPath, 'r');
     let doc = await vscode.workspace.openTextDocument(file);
-    await vscode.window.showTextDocument(
-      doc,
-      vscode.ViewColumn.One,
-      true
-    );
+    await vscode.window.showTextDocument(doc, vscode.ViewColumn.One, true);
 
     // if (!workspaceFolders) {
     //   // Ensure that a workspace is open
@@ -113,10 +108,13 @@ suite('Extension Test Suite', async () => {
 
     // sleep(1000);
 
-
     // Verify the document is created and contains the specific content
     const createdDocument = await vscode.workspace.openTextDocument(filePath);
-    assert.strictEqual(createdDocument.getText(), 'Hello, VSCode!', 'The content of the document should be "Hello, VSCode!"');
+    assert.strictEqual(
+      createdDocument.getText(),
+      'Hello, VSCode!',
+      'The content of the document should be "Hello, VSCode!"'
+    );
 
     // Cleanup
     if (fs.existsSync(filePath)) {
@@ -127,25 +125,24 @@ suite('Extension Test Suite', async () => {
   // enterText('config');
   // sleep(1000);
 
-
   vscode.window.activeTextEditor?.edit;
   vscode.window.activeTextEditor?.document.lineCount;
   let ws = null;
   for (const workspaceFolder of vscode.workspace.workspaceFolders ?? []) {
-	  ws = new DrupalWorkspace(workspaceFolder);
-    console.log("DEBUG","debug", ws);
+    ws = new DrupalWorkspace(workspaceFolder);
+    console.log('DEBUG', 'debug', ws);
   }
-  console.log("DEBUG","debug", ws);
-	// if (drupalWorkspaces.length === 0) {
-	//   return;
-	// }
-	
-	vscode.window.showInformationMessage('Start all tests.');
-  
-	// const autocomplete = new RecipesCompletionProvider();
+  console.log('DEBUG', 'debug', ws);
+  // if (drupalWorkspaces.length === 0) {
+  //   return;
+  // }
 
-	test('Sample test', () => {
-		assert.strictEqual(-1, [1, 2, 3].indexOf(5));
-		assert.strictEqual(-1, [1, 2, 3].indexOf(0));
-	});
+  vscode.window.showInformationMessage('Start all tests.');
+
+  // const autocomplete = new RecipesCompletionProvider();
+
+  test('Sample test', () => {
+    assert.strictEqual(-1, [1, 2, 3].indexOf(5));
+    assert.strictEqual(-1, [1, 2, 3].indexOf(0));
+  });
 });

@@ -15,7 +15,8 @@ import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
 
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
-  implements CompletionItemProvider {
+  implements CompletionItemProvider
+{
   static language = 'yaml';
 
   completions: CompletionItem[] = [];
@@ -29,7 +30,9 @@ export default class RecipesCompletionProvider
         {
           language: RecipesCompletionProvider.language,
           scheme: 'file',
-          pattern: this.drupalWorkspace.getRelativePattern('**/recipe.{yml,yaml}'),
+          pattern: this.drupalWorkspace.getRelativePattern(
+            '**/recipe.{yml,yaml}'
+          ),
         },
         this
       )
@@ -40,7 +43,7 @@ export default class RecipesCompletionProvider
 
   /**
    * Detects the yml type.
-   * 
+   *
    * @param string filePath
    *   The file path.
    * @returns string|boolean
@@ -50,18 +53,21 @@ export default class RecipesCompletionProvider
     // List of types, the order is important, for example:
     // A profile can contain modules, so we need to test for modules firt.
     const mapping = [
-      { "/recipe.yml": "recipe" },
-      { "/recipe.yaml": "recipe" },
-      { "/config/": "config" },
-      { "/modules/": "module" },
-      { "/themes/": "theme" },
-      { "/profiles/": "profile" },
-      { "/default_content/": "content" },
-      { "/content/": "content" },
+      { '/recipe.yml': 'recipe' },
+      { '/recipe.yaml': 'recipe' },
+      { '/config/': 'config' },
+      { '/modules/': 'module' },
+      { '/themes/': 'theme' },
+      { '/profiles/': 'profile' },
+      { '/default_content/': 'content' },
+      { '/content/': 'content' },
     ];
 
     // Check if the file path matches any of the items in the mapping.
-    const findValueByKey = (mapping: any[], filePath: string): string | boolean => {
+    const findValueByKey = (
+      mapping: any[],
+      filePath: string
+    ): string | boolean => {
       for (const item of mapping) {
         for (const [key, type] of Object.entries(item)) {
           if (filePath.includes(key)) {
@@ -82,7 +88,7 @@ export default class RecipesCompletionProvider
 
   /**
    * Creates the completion item and stores in cache.
-   * 
+   *
    * @param sting type
    *   The file type.
    * @param Uri path
@@ -107,11 +113,23 @@ export default class RecipesCompletionProvider
           let label = `${contents.name} (${type.toUpperCase()})`;
 
           // Add autocomplete for install. i.e. module/theme name.
-          this.storeCompletionItem(filePath, 'install', label, contents.description, `${text}\n- `);
+          this.storeCompletionItem(
+            filePath,
+            'install',
+            label,
+            contents.description,
+            `${text}\n- `
+          );
 
           // Also add autocomplete for config.import. i.e. module/theme name.
           let name = text.split('.')[0];
-          this.storeCompletionItem(filePath, 'import', label, contents.description, `${name}:\n  - `);
+          this.storeCompletionItem(
+            filePath,
+            'import',
+            label,
+            contents.description,
+            `${name}:\n  - `
+          );
         }
         break;
 
@@ -122,7 +140,13 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
-          this.storeCompletionItem(filePath, 'recipes', label, contents.description, `${text}\n- `);
+          this.storeCompletionItem(
+            filePath,
+            'recipes',
+            label,
+            contents.description,
+            `${text}\n- `
+          );
         }
         break;
 
@@ -133,11 +157,23 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${text} (${type.toUpperCase()})`;
-          this.storeCompletionItem(filePath, 'actions', label, 'Config', `${text}:\n  `);
+          this.storeCompletionItem(
+            filePath,
+            'actions',
+            label,
+            'Config',
+            `${text}:\n  `
+          );
           // Also add autocomplete for config.import.module_name. i.e. the config id.
           // @todo: This is not working, we need to list the available configs, not the name of the config.
           let name = text.split('.')[0];
-          this.storeCompletionItem(filePath, name, label, 'Config', `${text}\n- `);
+          this.storeCompletionItem(
+            filePath,
+            name,
+            label,
+            'Config',
+            `${text}\n- `
+          );
         }
         break;
 
@@ -152,7 +188,7 @@ export default class RecipesCompletionProvider
 
   /**
    * Stores autocomplete item in cache.
-   * 
+   *
    * @param string path
    *   The file path.
    * @param string parent
@@ -164,7 +200,13 @@ export default class RecipesCompletionProvider
    * @param string insertText
    *   The text to be inserted.
    */
-  storeCompletionItem(path: string, parent: string, label: string, documentation: string, insertText: string) {
+  storeCompletionItem(
+    path: string,
+    parent: string,
+    label: string,
+    documentation: string,
+    insertText: string
+  ) {
     const completion: CompletionItem = {
       label,
       // We use detail to tell what is the parent item. @TODO: We should find a better way to store
@@ -194,7 +236,10 @@ export default class RecipesCompletionProvider
    * @todo Move this function to a separate file.
    */
   async parseYamlFiles() {
-    const files = await this.drupalWorkspace.findFiles('**/*.yml', '{vendor, node_modules}');
+    const files = await this.drupalWorkspace.findFiles(
+      '**/*.yml',
+      '{vendor, node_modules}'
+    );
     // List of types that are not supported yet.
     const ignore: string[] = [
       '.libraries.yml',
@@ -219,7 +264,8 @@ export default class RecipesCompletionProvider
       }
 
       // Check if file should be skipped.
-      let shouldIgnore = (filePath: string, ignoreList: string[]): boolean => ignoreList.some(ignoreItem => filePath.includes(ignoreItem));
+      let shouldIgnore = (filePath: string, ignoreList: string[]): boolean =>
+        ignoreList.some((ignoreItem) => filePath.includes(ignoreItem));
 
       if (shouldIgnore(filePath, ignore)) {
         continue;
@@ -235,8 +281,7 @@ export default class RecipesCompletionProvider
       try {
         let buffer = await workspace.fs.readFile(path);
         contents = parseYaml(buffer.toString());
-      }
-      catch (err) {
+      } catch (err) {
         // Ignore the error, we will test the contents below.
       }
 
@@ -246,7 +291,10 @@ export default class RecipesCompletionProvider
       }
 
       if (type === 'module' || type === 'theme') {
-        if (typeof contents.hidden !== 'undefined' && contents.hidden === 'true') {
+        if (
+          typeof contents.hidden !== 'undefined' &&
+          contents.hidden === 'true'
+        ) {
           // Exclude hidden modules.
           continue;
         }
@@ -260,6 +308,14 @@ export default class RecipesCompletionProvider
     );
   }
 
+  /**
+   * Find the parent attribute when autocomplete is triggered by pressing ^ + Space.
+   *
+   * @param Position position
+   *   The cursor position.
+   * @returns string
+   *   The parent attribute.
+   */
   getParentAttribute(position: Position): string {
     if (position.character === 0) {
       return '';
@@ -281,32 +337,37 @@ export default class RecipesCompletionProvider
           match = attribute?.text.trim().match(/(\w+):/);
         }
       }
-
     } while (line > 0 && !match);
 
     return match ? match[1] : '';
   }
 
+  /**
+   * Provides completion items.
+   *
+   * @param TextDocument document
+   *   The current document.
+   * @param Position position
+   *   The cursor position.
+   * @returns object
+   *   The autocompletion item.
+   */
   async provideCompletionItems(document: TextDocument, position: Position) {
     if (!this.drupalWorkspace.hasFile(document.uri)) {
       return [];
     }
 
-    const linePrefix = document
-      .lineAt(position)
-      .text.substring(0, position.character);
-
     let parentAttribute = this.getParentAttribute(position);
 
     // Get completions for the parent item.
-    let filtered = this.completions.filter((item) =>
-      parentAttribute !== '' && item.detail?.includes(parentAttribute)
+    let filtered = this.completions.filter(
+      (item) => parentAttribute !== '' && item.detail?.includes(parentAttribute)
     );
 
     // Workaround to remove duplicated entries.
     // @todo Investigate why there are multiple duplications.
     filtered = filtered.filter((item, index, self) => {
-      let firstOccurrenceIndex = self.findIndex(t => t.label === item.label);
+      let firstOccurrenceIndex = self.findIndex((t) => t.label === item.label);
       return index === firstOccurrenceIndex;
     });
 
@@ -314,9 +375,7 @@ export default class RecipesCompletionProvider
       const newItem = Object.assign({}, item);
 
       if (newItem.insertText instanceof SnippetString) {
-        newItem.insertText = new SnippetString(
-          newItem.insertText.value
-        );
+        newItem.insertText = new SnippetString(newItem.insertText.value);
       }
       return newItem;
     });
