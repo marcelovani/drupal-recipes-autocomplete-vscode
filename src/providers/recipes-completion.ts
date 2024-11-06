@@ -355,7 +355,7 @@ export default class RecipesCompletionProvider
 
       // Check if there are leading spaces before the item.
       const spaces = attribute?.text.match(/^ */);
-      if (spaces) {
+      if (attribute?.text !== '' && spaces) {
         propertyCol = spaces[0].length;
 
         // Initialise lastCol.
@@ -436,12 +436,12 @@ export default class RecipesCompletionProvider
       // Flatten the object, converting the keys to dot-notation.
       const flattenedObj = flattenObject(obj);
 
-      // Split the path into an array.
-      const pathArray = path.split('.');
-
       // Loop through each item in the flattened object.
       for (const key in flattenedObj) {
         if (flattenedObj.hasOwnProperty(key)) {
+          // Split the path into an array.
+          const pathArray = path.split('.');
+
           // Split the key for all dots and store in an array
           const keyArray = key.split('.');
           // @todo this is redundant.
