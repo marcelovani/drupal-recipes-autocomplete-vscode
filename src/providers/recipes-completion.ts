@@ -119,7 +119,7 @@ export default class RecipesCompletionProvider
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
 
-          // Add autocomplete for install. i.e. module/theme name.
+          // Add autocomplete suggestions for install.
           this.storeCompletionItem(
             'install',
             label,
@@ -127,7 +127,7 @@ export default class RecipesCompletionProvider
             `${text}\n- `
           );
 
-          // Also add autocomplete for config.import. i.e. module/theme name.
+          // Add autocomplete suggestions for config.import.
           let name = text.split('.')[0];
           this.storeCompletionItem(
             'config.import',
@@ -145,6 +145,7 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
+          // Add autocomplete suggestions for recipes.
           this.storeCompletionItem(
             'recipes',
             label,
@@ -161,14 +162,17 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${text} (${type.toUpperCase()})`;
+
+          // Add autocomplete suggestions for config.actions.
           this.storeCompletionItem(
             'config.actions',
             label,
             'Config',
             `${text}:\n  `
           );
-          // Also add autocomplete for config.import.module_name. i.e. the config id.
-          // @todo: This is not working, we need to list the available configs, not the name of the config.
+
+          // Also add autocomplete for config.import.module/theme.
+          // @todo: This is not working, we need to get the available configs in the module/config/install folder.
           let name = text.split('.')[0];
           this.storeCompletionItem(
             `config.import.${name}`,
@@ -180,7 +184,12 @@ export default class RecipesCompletionProvider
         break;
 
       case 'content':
-        console.warn(`${type} type is not implemented yet.`);
+          this.storeCompletionItem(
+            'content',
+            'Content is not supported yet',
+            'Config',
+            `\n- `
+          );
         break;
 
       default:
@@ -377,8 +386,9 @@ export default class RecipesCompletionProvider
     console.log(`Parent attribute ${parentAttribute}`);
 
     // Get completions for the parent item.
+    // @todo use regex to make it match keys with wildcards i.e. user.role.*
     let filtered = this.completions.filter(
-      (item) => parentAttribute !== '' && item.detail?.includes(parentAttribute)
+      (item) => parentAttribute !== '' && item.detail === parentAttribute
     );
 
     // Workaround to remove duplicated entries.
@@ -391,6 +401,7 @@ export default class RecipesCompletionProvider
     console.log('Filtered options', filtered);
 
     return filtered.map((item) => {
+      // @todo Update item.detail to show a friendly text. Perhaps use detail as object with path and text.
       const newItem = Object.assign({}, item);
 
       if (newItem.insertText instanceof SnippetString) {
