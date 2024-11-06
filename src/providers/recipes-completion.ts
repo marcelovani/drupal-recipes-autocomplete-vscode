@@ -88,6 +88,13 @@ export default class RecipesCompletionProvider
 
   /**
    * Creates the completion item and stores in cache.
+   * @todo rename this. it should be something like build completion tree
+   * The items are stored using dot annotation i.e. see the object structure below, the path will be config.actions.node
+   *
+   * config:
+   *   actions:
+   *     node:
+   *       - node.settings
    *
    * @param sting type
    *   The file type.
@@ -114,7 +121,6 @@ export default class RecipesCompletionProvider
 
           // Add autocomplete for install. i.e. module/theme name.
           this.storeCompletionItem(
-            filePath,
             'install',
             label,
             contents.description,
@@ -124,8 +130,7 @@ export default class RecipesCompletionProvider
           // Also add autocomplete for config.import. i.e. module/theme name.
           let name = text.split('.')[0];
           this.storeCompletionItem(
-            filePath,
-            'import',
+            'config.import',
             label,
             contents.description,
             `${name}:\n  - `
@@ -141,7 +146,6 @@ export default class RecipesCompletionProvider
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
           this.storeCompletionItem(
-            filePath,
             'recipes',
             label,
             contents.description,
@@ -158,8 +162,7 @@ export default class RecipesCompletionProvider
           let text = match[1];
           let label = `${text} (${type.toUpperCase()})`;
           this.storeCompletionItem(
-            filePath,
-            'actions',
+            'config.actions',
             label,
             'Config',
             `${text}:\n  `
@@ -168,8 +171,7 @@ export default class RecipesCompletionProvider
           // @todo: This is not working, we need to list the available configs, not the name of the config.
           let name = text.split('.')[0];
           this.storeCompletionItem(
-            filePath,
-            name,
+            `config.import.${name}`,
             label,
             'Config',
             `${text}\n- `
@@ -190,9 +192,7 @@ export default class RecipesCompletionProvider
    * Stores autocomplete item in cache.
    *
    * @param string path
-   *   The file path.
-   * @param string parent
-   *   Used to store the key of the parent item.
+   *   The path in the object using dot annotation i.e. config.actions
    * @param string label
    *   The label.
    * @param string documentation
@@ -202,7 +202,6 @@ export default class RecipesCompletionProvider
    */
   storeCompletionItem(
     path: string,
-    parent: string,
     label: string,
     documentation: string,
     insertText: string
@@ -211,7 +210,7 @@ export default class RecipesCompletionProvider
       label,
       // We use detail to tell what is the parent item. @TODO: We should find a better way to store
       // this info and use detail for the purpose of showing details when the pop up opens.
-      detail: parent,
+      detail: path,
       documentation,
       insertText: new SnippetString(insertText),
     };
@@ -256,12 +255,6 @@ export default class RecipesCompletionProvider
 
     for (const path of files) {
       let filePath: string = path.toString();
-
-      // Check cache.
-      if (this.completionFileCache.has(filePath)) {
-        this.completionFileCache.delete(filePath);
-        continue;
-      }
 
       // Check if file should be skipped.
       let shouldIgnore = (filePath: string, ignoreList: string[]): boolean =>
@@ -309,37 +302,58 @@ export default class RecipesCompletionProvider
   }
 
   /**
-   * Find the parent attribute when autocomplete is triggered by pressing ^ + Space.
+   * When autocomplete is triggered by pressing ^ + Space we need to find the path of the parent item.
+   * The path will be in dot annotation i.e. config.import.foo
    *
    * @param Position position
    *   The cursor position.
    * @returns string
    *   The parent attribute.
    */
-  getParentAttribute(position: Position): string {
+  getPropertyTrail(position: Position): string {
     if (position.character === 0) {
       return '';
     }
 
     let line = position.line;
-    let match = null;
+
+    let lastCol = 0;
+
+    // let match = null;
+
+    let path = '';
+
+    // The column of the property being evaluated.
+    let propertyCol = 0;
 
     do {
-      line--;
       let attribute = window.activeTextEditor?.document.lineAt(line);
 
-      // Check if the column position of the attribute is grater than the cursor position.
+      // Check if there are leading spaces before the item.
       const spaces = attribute?.text.match(/^ */);
       if (spaces) {
-        let attributePosition = spaces[0].length;
-        if (attributePosition < position.character) {
-          // Use regex to match text before colon.
-          match = attribute?.text.trim().match(/(\w+):/);
+        propertyCol = spaces[0].length;
+
+        // Initialise lastCol.
+        if (lastCol === 0) {
+          lastCol = propertyCol;
+        }
+
+        // Check if the current item is the parent of previous item.
+        if (propertyCol < lastCol) {
+          // Update the position of the lastCol.
+          lastCol = propertyCol;
+
+          // Remove colon from item.
+          const property = attribute?.text.trim().replace(/:$/, '');
+          // Build the dot path.
+          path = property + (path !== '' ? '.' : '') + path;
         }
       }
-    } while (line > 0 && !match);
+      line--;
+    } while (propertyCol > 0);
 
-    return match ? match[1] : '';
+    return path;
   }
 
   /**
@@ -357,7 +371,10 @@ export default class RecipesCompletionProvider
       return [];
     }
 
-    let parentAttribute = this.getParentAttribute(position);
+    let parentAttribute = this.getPropertyTrail(position);
+
+    // @todo remove console logs
+    console.log(`Parent attribute ${parentAttribute}`);
 
     // Get completions for the parent item.
     let filtered = this.completions.filter(
@@ -370,6 +387,8 @@ export default class RecipesCompletionProvider
       let firstOccurrenceIndex = self.findIndex((t) => t.label === item.label);
       return index === firstOccurrenceIndex;
     });
+
+    console.log('Filtered options', filtered);
 
     return filtered.map((item) => {
       const newItem = Object.assign({}, item);
