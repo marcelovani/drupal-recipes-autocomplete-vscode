@@ -12,6 +12,7 @@ import {
 
 import { parse as parseYaml } from 'yaml';
 import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
+import suggestionsMapping from './suggestions-mapping.json';
 
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
@@ -51,11 +52,12 @@ export default class RecipesCompletionProvider
    */
   detectFileType(filePath: string): string | boolean {
     // List of types, the order is important, for example:
-    // A profile can contain modules, so we need to test for modules firt.
+    // A profile can contain modules, so we need to test for modules first.
     const mapping = [
       { '/recipe.yml': 'recipe' },
       { '/recipe.yaml': 'recipe' },
       { '/config/': 'config' },
+      { '.permissions.': 'permission' },
       { '/modules/': 'module' },
       { '/themes/': 'theme' },
       { '/profiles/': 'profile' },
@@ -89,7 +91,7 @@ export default class RecipesCompletionProvider
   /**
    * Creates the completion item and stores in cache.
    * @todo rename this. it should be something like build completion tree
-   * The items are stored using dot annotation i.e. see the object structure below, the path will be config.actions.node
+   * The items are stored using dot-notation i.e. see the object structure below, the path will be config.actions.node
    *
    * config:
    *   actions:
@@ -145,6 +147,7 @@ export default class RecipesCompletionProvider
         if (match && typeof match[1] !== 'undefined') {
           let text = match[1];
           let label = `${contents.name} (${type.toUpperCase()})`;
+
           // Add autocomplete suggestions for recipes.
           this.storeCompletionItem(
             'recipes',
@@ -172,7 +175,7 @@ export default class RecipesCompletionProvider
           );
 
           // Also add autocomplete for config.import.module/theme.
-          // @todo: This is not working, we need to get the available configs in the module/config/install folder.
+          // @todo: This is not working correctly, we need to get the available configs in the module/config/install folder.
           let name = text.split('.')[0];
           this.storeCompletionItem(
             `config.import.${name}`,
@@ -184,12 +187,27 @@ export default class RecipesCompletionProvider
         break;
 
       case 'content':
-          this.storeCompletionItem(
-            'content',
-            'Content is not supported yet',
-            'Config',
-            `\n- `
-          );
+        this.storeCompletionItem(
+          'content',
+          'Content is not supported yet',
+          'Config',
+          `\n- `
+        );
+        break;
+
+      case 'permission':
+        // Loop through the permissions.
+        for (const key in contents) {
+          if (contents.hasOwnProperty(key) && contents[key].title) {
+            // Store permissions in global object.
+            this.storeCompletionItem(
+              'global.permissions',
+              `${contents[key].title} (Permission)`,
+              'Permission',
+              `'${key}'\n- `
+            );
+          }
+        }
         break;
 
       default:
@@ -201,7 +219,7 @@ export default class RecipesCompletionProvider
    * Stores autocomplete item in cache.
    *
    * @param string path
-   *   The path in the object using dot annotation i.e. config.actions
+   *   The path in the object using dot-notation i.e. config.actions
    * @param string label
    *   The label.
    * @param string documentation
@@ -248,6 +266,7 @@ export default class RecipesCompletionProvider
       '**/*.yml',
       '{vendor, node_modules}'
     );
+
     // List of types that are not supported yet.
     const ignore: string[] = [
       '.libraries.yml',
@@ -312,24 +331,20 @@ export default class RecipesCompletionProvider
 
   /**
    * When autocomplete is triggered by pressing ^ + Space we need to find the path of the parent item.
-   * The path will be in dot annotation i.e. config.import.foo
+   * The path will be in dot-notation i.e. config.import.foo
    *
    * @param Position position
    *   The cursor position.
    * @returns string
    *   The parent attribute.
    */
-  getPropertyTrail(position: Position): string {
+  getPropertyPath(position: Position): string {
     if (position.character === 0) {
       return '';
     }
 
     let line = position.line;
-
     let lastCol = 0;
-
-    // let match = null;
-
     let path = '';
 
     // The column of the property being evaluated.
@@ -355,6 +370,7 @@ export default class RecipesCompletionProvider
 
           // Remove colon from item.
           const property = attribute?.text.trim().replace(/:$/, '');
+
           // Build the dot path.
           path = property + (path !== '' ? '.' : '') + path;
         }
@@ -380,15 +396,90 @@ export default class RecipesCompletionProvider
       return [];
     }
 
-    let parentAttribute = this.getPropertyTrail(position);
+    let propertyPath = this.getPropertyPath(position);
 
     // @todo remove console logs
-    console.log(`Parent attribute ${parentAttribute}`);
+    console.log(`Parent attribute ${propertyPath}`);
 
-    // Get completions for the parent item.
-    // @todo use regex to make it match keys with wildcards i.e. user.role.*
+    /**
+     * Flattens a nested object into a single-depth object with dot-notation keys.
+     * @todo move to utils.
+     *
+     * @param {Object} obj - The object to flatten.
+     * @param {string} [parentKey=''] - The base key to prefix (used in recursion).
+     * @param {Object} [result={}] - The accumulator for storing flattened results.
+     * @returns {Object} - The flattened object.
+     */
+    const flattenObject = (obj: any, parentKey = '', result: any = {}): any => {
+      for (const key in obj) {
+        if (obj.hasOwnProperty(key)) {
+          const newKey = parentKey ? `${parentKey}.${key}` : key;
+          if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+            flattenObject(obj[key], newKey, result);
+          } else {
+            result[newKey] = obj[key];
+          }
+        }
+      }
+      return result;
+    };
+
+    /**
+     * Finds a value in a flattened object using a dot-notation path.
+     * @todo move to utils
+     *
+     * @param {Object} obj - The object.
+     * @param {string} path - The path to search with dot-notation.
+     * @returns {*} - The value at the specified path, or false if not found.
+     */
+    const getValueByPath = (obj: any, path: string): any => {
+      // Flatten the object, converting the keys to dot-notation.
+      const flattenedObj = flattenObject(obj);
+
+      // Split the path into an array.
+      const pathArray = path.split('.');
+
+      // Loop through each item in the flattened object.
+      for (const key in flattenedObj) {
+        if (flattenedObj.hasOwnProperty(key)) {
+          // Split the key for all dots and store in an array
+          const keyArray = key.split('.');
+          // @todo this is redundant.
+          let ind = -1;
+
+          // Loop through every item.
+          keyArray.forEach((element, index) => {
+             // Remove values with '*' from the array.
+            if (element === '*') {
+              ind = index;
+              keyArray.splice(index, 1);
+              if (ind < pathArray.length) {
+                // Remove the corresponding item from pathArray.
+                pathArray.splice(ind, 1);
+              }
+            }
+          });
+
+          // Convert keyArray into string, using dot-notation.
+          if (keyArray.join('.') === pathArray.join('.')) {
+            return flattenedObj[key];
+          }
+        }
+      }
+
+      return false;
+    };
+
+    // Check if the property path matches any wildcard from suggestions-mapping.json.
+    let path = getValueByPath(suggestionsMapping, propertyPath);
+    if (path !== false) {
+      // Update path to properties.
+      propertyPath = path;
+    }
+
+    // Get completions for the property path.
     let filtered = this.completions.filter(
-      (item) => parentAttribute !== '' && item.detail === parentAttribute
+      (item) => propertyPath !== '' && item.detail === propertyPath
     );
 
     // Workaround to remove duplicated entries.

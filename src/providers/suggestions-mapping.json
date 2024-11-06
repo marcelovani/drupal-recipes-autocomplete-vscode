@@ -1,15 +1,14 @@
 {
-    "$comment": "This file provides a mapping to fill in the items that are dynamic and cannot be automatically completed using just Json Schema. It uses placeholders to provide the information about what type of data to be fetched.",
+    "comment": "This file provides a mapping to fill in the items that are dynamic. The values represent the path (dot-notation) in the completion objects.",
     "config": {
-        "install": {},
-        "action": {
+        "actions": {
             "set": {
-                "$comment": "Provides suggestions for the config in context.",
-                "property_name": "getConfigItems()"
+                "comment": "Provides suggestions for the config in context.",
+                "property_name": "config.actions"
             },
-            "create": "getConfigItems()",
-            "createIfNotExists": "getConfigItems()",
-            "simpleConfigUpdate": "getConfigItems()",
+            "create": "config.actions",
+            "createIfNotExists": "config.actions",
+            "simpleConfigUpdate": "config.actions",
             "placeBlockInDefaultTheme": {
                 "id": "getBlockId()",
                 "region": {
@@ -36,10 +35,13 @@
             },
             "setThirdPartySetting": {
                 "module": "getModuleNames()",
-                "key": "getConfigItems()"
+                "key": "config.actions"
             },
             "grantPermissionsForEachTaxonomyVocabulary": "getVocabularies()",
-            "grantPermissionsForEachMediaType": "getMediaTypes()"
+            "grantPermissionsForEachMediaType": "getMediaTypes()",
+            "user.role.*": {
+              "grantPermissions": "global.permissions"
+            }
         }
     }
 }
