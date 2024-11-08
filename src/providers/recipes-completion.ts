@@ -97,6 +97,9 @@ export default class RecipesCompletionProvider
    *   actions:
    *     node:
    *       - node.settings
+   * global:
+   *   permissions
+   *     - 'access content'
    *
    * @param sting type
    *   The file type.
@@ -233,7 +236,7 @@ export default class RecipesCompletionProvider
     documentation: string,
     insertText: string
   ) {
-    const completion: CompletionItem = {
+    const newCompletionItem: CompletionItem = {
       label,
       // We use detail to tell what is the parent item. @TODO: We should find a better way to store
       // this info and use detail for the purpose of showing details when the pop up opens.
@@ -242,16 +245,25 @@ export default class RecipesCompletionProvider
       insertText: new SnippetString(insertText),
     };
 
-    let completions: CompletionItem[] = [];
+    let newCompletions: CompletionItem[] = [newCompletionItem];
 
-    // Merge with existing cache items.
-    let cached = this.completionFileCache.get(path);
-    if (cached) {
-      completions = cached;
+    // Check cache.
+    let cache = this.completionFileCache.get(path);
+    if (typeof cache === 'object' && cache.length > 0) {
+      // Check if item is in cache.
+      if (cache.findIndex((t) => t.label === newCompletionItem.label) !== -1) {
+        return;
+      }
+
+      // Merge with cached items.
+      newCompletions = ([] as CompletionItem[]).concat(...cache);
     }
-    completions.push(completion);
 
-    this.completionFileCache.set(path, completions);
+    // Add to completions list.
+    this.completions.push(newCompletionItem);
+
+    // Cache item.
+    this.completionFileCache.set(path, newCompletions);
   }
 
   /**
@@ -323,10 +335,6 @@ export default class RecipesCompletionProvider
 
       this.processCompletionItem(type.toString(), path, contents);
     }
-
-    this.completions = ([] as CompletionItem[]).concat(
-      ...this.completionFileCache.values()
-    );
   }
 
   /**
@@ -414,7 +422,11 @@ export default class RecipesCompletionProvider
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
           const newKey = parentKey ? `${parentKey}.${key}` : key;
-          if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+          if (
+            typeof obj[key] === 'object' &&
+            obj[key] !== null &&
+            !Array.isArray(obj[key])
+          ) {
             flattenObject(obj[key], newKey, result);
           } else {
             result[newKey] = obj[key];
@@ -438,34 +450,40 @@ export default class RecipesCompletionProvider
 
       // Loop through each item in the flattened object.
       for (const key in flattenedObj) {
-        if (flattenedObj.hasOwnProperty(key)) {
+        if (!flattenedObj.hasOwnProperty(key)) {
+          continue;
+        }
+
           // Split the path into an array.
           const pathArray = path.split('.');
 
           // Split the key for all dots and store in an array
           const keyArray = key.split('.');
-          // @todo this is redundant.
-          let ind = -1;
 
-          // Loop through every item.
-          keyArray.forEach((element, index) => {
-             // Remove values with '*' from the array.
-            if (element === '*') {
-              ind = index;
-              keyArray.splice(index, 1);
+        // Loop through every item
+        // Removing values with '*' from the array.
+        let ind = 0;
+        let item = undefined;
+        do {
+          item = keyArray[ind];
+          if (item === '*') {
+            // Remove item.
+            keyArray.splice(ind, 1);
+
+            // Remove the corresponding item from pathArray.
               if (ind < pathArray.length) {
-                // Remove the corresponding item from pathArray.
                 pathArray.splice(ind, 1);
-              }
             }
-          });
+          } else {
+            ind++;
+          }
+        } while (item !== undefined);
 
           // Convert keyArray into string, using dot-notation.
           if (keyArray.join('.') === pathArray.join('.')) {
             return flattenedObj[key];
           }
         }
-      }
 
       return false;
     };
