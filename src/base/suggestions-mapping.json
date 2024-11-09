@@ -12,7 +12,7 @@
         "setRegion": "callback:getRegionNames",
         "hideComponent": "callback:getComponentNames",
         "hideComponents": ["callback:getComponentNames"],
-        "grantPermission": "callback:getUserPermissions",
+        "grantPermission": "ref:global/permissions",
         "setThirdPartySetting": {
           "module": "callback:getModuleNames",
           "key": "ref:config/actions"

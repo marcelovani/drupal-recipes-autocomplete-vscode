@@ -67,7 +67,7 @@ export async function getConfigItems(
       }
     });
 
-    // Wait for all files to be read
+    // Wait for all files to be read.
     return await Promise.all(fileReadPromises);
   } catch (err) {
     console.error('Error loading files:', err);
