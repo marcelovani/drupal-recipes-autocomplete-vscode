@@ -9,6 +9,6 @@
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
-    "allowEmptyCatch": true
+    "allowEmptyCatch": 1
   }
 }

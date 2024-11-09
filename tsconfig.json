@@ -1,26 +1,21 @@
 {
-	"compilerOptions": {
-		"module": "NodeNext",
-		"target": "es2022",
+  "compilerOptions": {
+    "target": "ES2021",
+    "module": "ESNext",
     "resolveJsonModule": true,
-		"lib": [
-			"es2022"
-		],
-		"outDir": "out",
-		"sourceMap": true,
-		"strict": true,
-		"rootDir": "src"
-		/* Additional Checks */
-		// "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-		// "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-		// "noUnusedParameters": true,  /* Report errors on unused parameters. */
-	},
-	"include": [
-		"src"
-	],
-	"exclude": [
-		"node_modules",
-		"out",
-		".vscode-test"
-	],
+    "outDir": "./out",
+    "sourceMap": true,
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "moduleResolution": "node"
+    /* Additional Checks */
+    // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
+    // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
+    // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+  },
+  "include": ["src", "eslint.config.mjs"],
+  "exclude": ["node_modules", "out", ".vscode-test"]
 }
