@@ -8,6 +8,7 @@ export class yaml {
   constructor(context: any) {
     this.context = context;
   }
+
   /**
    * Finds all yml files in the Drupal codebase, parses the files to detect what type of file it is,
    * stores the items in cache, adds the items to the autocomplete list.
@@ -33,17 +34,17 @@ export class yaml {
     ];
 
     for (const path of files) {
-      let filePath: string = path.toString();
+      const filePath: string = path.toString();
 
       // Check if file should be skipped.
-      let shouldIgnore = (filePath: string, ignoreList: string[]): boolean =>
+      const shouldIgnore = (filePath: string, ignoreList: string[]): boolean =>
         ignoreList.some((ignoreItem) => filePath.includes(ignoreItem));
 
       if (shouldIgnore(filePath, ignore)) {
         continue;
       }
 
-      let type = this.detectFileType(filePath);
+      const type = this.detectFileType(filePath);
       if (type === false) {
         continue;
       }
@@ -51,7 +52,7 @@ export class yaml {
       // Read file.
       let contents = null;
       try {
-        let buffer = await workspace.fs.readFile(path);
+        const buffer = await workspace.fs.readFile(path);
         contents = parseYaml(buffer.toString());
       } catch (err) {
         // Ignore the error, we will test the contents below.
@@ -145,17 +146,17 @@ export class yaml {
     // Prepare completion item.
     let regex = null;
     let match = null;
-    let filePath: string = path.toString();
+    const filePath: string = path.toString();
     switch (type) {
       case 'theme':
       case 'module':
       case 'profile':
         // Extract the module/theme/profile filename.
-        regex = new RegExp(`/${type}s/.*\/(.*?)\\.info`);
+        regex = new RegExp(`/${type}s/.*/(.*?)\\.info`);
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          let text = match[1];
-          let label = `${contents.name} (${type.toUpperCase()})`;
+          const text = match[1];
+          const label = `${contents.name} (${type.toUpperCase()})`;
 
           // Add autocomplete suggestions for install.
           this.context.storeCompletionItem(
@@ -166,7 +167,7 @@ export class yaml {
           );
 
           // Add autocomplete suggestions for config/import.
-          let name = text.split('.')[0];
+          const name = text.split('.')[0];
           this.context.storeCompletionItem(
             'config/import',
             label,
@@ -178,11 +179,11 @@ export class yaml {
 
       case 'recipe':
         // Extract the recipe name from filename.
-        regex = /\/([^\/]+)\/recipe\.yml$/;
+        regex = /\/([^/]+)\/recipe\.yml$/;
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          let text = match[1];
-          let label = `${contents.name} (${type.toUpperCase()})`;
+          const text = match[1];
+          const label = `${contents.name} (${type.toUpperCase()})`;
 
           // Add autocomplete suggestions for recipes.
           this.context.storeCompletionItem(
@@ -197,11 +198,11 @@ export class yaml {
       case 'config':
         // Extract config name from filename.
         // @todo move to function in utils i.e. extractConfigInfo()
-        regex = /\/config\/install\/([^\/]+)\.yml$/;
+        regex = /\/config\/install\/([^/]+)\.yml$/;
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          let text = match[1];
-          let label = `${text} (${type.toUpperCase()})`;
+          const text = match[1];
+          const label = `${text} (${type.toUpperCase()})`;
 
           // Store config info in the global Storage.
           globalStorage.push({
@@ -219,7 +220,7 @@ export class yaml {
 
           // Also add autocomplete for config/import/module_theme_name.
           // @todo: This is not working correctly, we need to get the available configs in the module/config/install folder.
-          let name = text.split('.')[0];
+          const name = text.split('.')[0];
           this.context.storeCompletionItem(
             `config/import/${name}`,
             label,
@@ -241,7 +242,7 @@ export class yaml {
       case 'permission':
         // Loop through the permissions.
         for (const key in contents) {
-          if (contents.hasOwnProperty(key) && contents[key].title) {
+          if (Object.prototype.hasOwnProperty.call(contents, key) && contents[key].title) {
             // Store permissions in global object.
             this.context.storeCompletionItem(
               'global/permissions',

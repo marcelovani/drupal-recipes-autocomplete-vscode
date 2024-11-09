@@ -27,7 +27,7 @@ const flattenObject = (
   result: any = {}
 ): any => {
   for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
       const newKey = parentKey ? `${parentKey}/${key}` : key;
       if (
         typeof obj[key] === 'object' &&
@@ -61,7 +61,7 @@ export function getValueByPath(
 
   // Loop through each item in the flattened object.
   for (const key in flattenedObj) {
-    if (!flattenedObj.hasOwnProperty(key)) {
+    if (!Object.prototype.hasOwnProperty.call(flattenedObj, key)) {
       continue;
     }
 
@@ -122,7 +122,7 @@ export function getPropertyPath(position: Position): string {
   let propertyCol = 0;
 
   do {
-    let attribute = window.activeTextEditor?.document.lineAt(line);
+    const attribute = window.activeTextEditor?.document.lineAt(line);
 
     // Check if there are leading spaces before the item.
     const spaces = attribute?.text.match(/^ */);

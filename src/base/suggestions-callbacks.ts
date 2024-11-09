@@ -36,7 +36,7 @@ export async function getConfigItems(
 
   // Read each file asynchronously.
   try {
-    const fileReadPromises = items.map(async (item, ind) => {
+    const fileReadPromises = items.map(async (item) => {
       let label = null;
 
       const url = new URL(item.path).pathname;
@@ -52,7 +52,7 @@ export async function getConfigItems(
         label = url.substring(workspaceIndex + workspaceFolder.length);
       }
       else {
-        let label = url;
+        label = url;
       }
 
       if (typeof context.storeCompletionItem === 'function') {

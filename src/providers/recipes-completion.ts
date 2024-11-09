@@ -73,7 +73,7 @@ export default class RecipesCompletionProvider
     let newCompletions: CompletionItem[] = [newCompletionItem];
 
     // Check cache.
-    let cache = this.completionFileCache.get(key);
+    const cache = this.completionFileCache.get(key);
     if (typeof cache === 'object' && cache.length > 0) {
       // Check if item is in cache.
       if (cache.findIndex((t) => t.label === newCompletionItem.label) !== -1) {
@@ -142,8 +142,7 @@ export default class RecipesCompletionProvider
     // Workaround to remove duplicated entries.
     // @todo Investigate why there are multiple duplications.
     filtered = filtered.filter((item, index, self) => {
-      let firstOccurrenceIndex = self.findIndex((t) => t.label === item.label);
-      return index === firstOccurrenceIndex;
+      return index === self.findIndex((t) => t.label === item.label);
     });
 
     console.debug('Filtered options', filtered);

@@ -1,10 +1,7 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import * as path from 'path';
 import * as fs from 'fs';
 // import { workspace } from "vscode";
-import getDrupalWorkspaces from '../../utils/workspace';
-import RecipesCompletionProvider, * as extension from '../../providers/recipes-completion';
 import DrupalWorkspace from '../../base/drupal-workspace';
 
 const getRelativePath = (path: string) => {
@@ -12,7 +9,7 @@ const getRelativePath = (path: string) => {
 };
 
 const openFile = (relativePath: string) => {
-  var openPath = vscode.Uri.file(
+  const openPath = vscode.Uri.file(
     `${vscode.workspace.rootPath}/${relativePath}`
   );
   vscode.workspace.openTextDocument(openPath).then((doc) => {
@@ -85,7 +82,7 @@ suite('Extension Test Suite', async () => {
     // console.log("DEBUG editor file", fromActiveTextEditor());
 
     fs.openSync(file.fsPath, 'r');
-    let doc = await vscode.workspace.openTextDocument(file);
+    const doc = await vscode.workspace.openTextDocument(file);
     await vscode.window.showTextDocument(doc, vscode.ViewColumn.One, true);
 
     // if (!workspaceFolders) {
@@ -125,8 +122,8 @@ suite('Extension Test Suite', async () => {
   // enterText('config');
   // sleep(1000);
 
-  vscode.window.activeTextEditor?.edit;
-  vscode.window.activeTextEditor?.document.lineCount;
+  const test1 = vscode.window.activeTextEditor?.edit;
+  const test2 = vscode.window.activeTextEditor?.document.lineCount;
   let ws = null;
   for (const workspaceFolder of vscode.workspace.workspaceFolders ?? []) {
     ws = new DrupalWorkspace(workspaceFolder);
