@@ -12,7 +12,12 @@ import {
 
 import { parse as parseYaml } from 'yaml';
 import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
-import suggestionsMapping from './suggestions-mapping.json';
+import suggestionsMapping from '../base/suggestions-mapping.json';
+import {
+  functionMap,
+  globalStorage,
+  getConfigItems,
+} from '../base/suggestions-callbacks';
 
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
@@ -97,9 +102,8 @@ export default class RecipesCompletionProvider
    *   actions:
    *     node:
    *       - node.settings
-   * global:
-   *   permissions
-   *     - 'access content'
+   *
+   * Path will be config/actions/node
    *
    * @param sting type
    *   The file type.
@@ -132,10 +136,10 @@ export default class RecipesCompletionProvider
             `${text}\n- `
           );
 
-          // Add autocomplete suggestions for config.import.
+          // Add autocomplete suggestions for config/import.
           let name = text.split('.')[0];
           this.storeCompletionItem(
-            'config.import',
+            'config/import',
             label,
             contents.description,
             `${name}:\n  - `
@@ -171,17 +175,17 @@ export default class RecipesCompletionProvider
 
           // Add autocomplete suggestions for config.actions.
           this.storeCompletionItem(
-            'config.actions',
+            'config/actions',
             label,
             'Config',
             `${text}:\n  `
           );
 
-          // Also add autocomplete for config.import.module/theme.
+          // Also add autocomplete for config/import/module_theme_name.
           // @todo: This is not working correctly, we need to get the available configs in the module/config/install folder.
           let name = text.split('.')[0];
           this.storeCompletionItem(
-            `config.import.${name}`,
+            `config/import/${name}`,
             label,
             'Config',
             `${text}\n- `
@@ -204,7 +208,7 @@ export default class RecipesCompletionProvider
           if (contents.hasOwnProperty(key) && contents[key].title) {
             // Store permissions in global object.
             this.storeCompletionItem(
-              'global.permissions',
+              'global/permissions',
               `${contents[key].title} (Permission)`,
               'Permission',
               `'${key}'\n- `
@@ -221,8 +225,8 @@ export default class RecipesCompletionProvider
   /**
    * Stores autocomplete item in cache.
    *
-   * @param string path
-   *   The path in the object using dot-notation i.e. config.actions
+   * @param string key
+   *   The key in the object using slash i.e. config/actions
    * @param string label
    *   The label.
    * @param string documentation
@@ -231,16 +235,16 @@ export default class RecipesCompletionProvider
    *   The text to be inserted.
    */
   storeCompletionItem(
-    path: string,
+    key: string,
     label: string,
     documentation: string,
     insertText: string
   ) {
     const newCompletionItem: CompletionItem = {
       label,
-      // We use detail to tell what is the parent item. @TODO: We should find a better way to store
+      // We use key to tell what is the parent item. @TODO: We should find a better way to store
       // this info and use detail for the purpose of showing details when the pop up opens.
-      detail: path,
+      detail: key,
       documentation,
       insertText: new SnippetString(insertText),
     };
@@ -248,7 +252,7 @@ export default class RecipesCompletionProvider
     let newCompletions: CompletionItem[] = [newCompletionItem];
 
     // Check cache.
-    let cache = this.completionFileCache.get(path);
+    let cache = this.completionFileCache.get(key);
     if (typeof cache === 'object' && cache.length > 0) {
       // Check if item is in cache.
       if (cache.findIndex((t) => t.label === newCompletionItem.label) !== -1) {
@@ -263,7 +267,7 @@ export default class RecipesCompletionProvider
     this.completions.push(newCompletionItem);
 
     // Cache item.
-    this.completionFileCache.set(path, newCompletions);
+    this.completionFileCache.set(key, newCompletions);
   }
 
   /**
@@ -339,7 +343,14 @@ export default class RecipesCompletionProvider
 
   /**
    * When autocomplete is triggered by pressing ^ + Space we need to find the path of the parent item.
-   * The path will be in dot-notation i.e. config.import.foo
+   * The path will be separated by slashes i.e. config/import/foo
+   *
+   * @todo: Need to update this code to resolve paths that are in the same line i.e.
+   * config:
+   *   actions:
+   *     block.block.foo
+   *       placeBlockInDefaultTheme:
+   *         id: <- This is the item to autocomplete
    *
    * @param Position position
    *   The cursor position.
@@ -379,8 +390,8 @@ export default class RecipesCompletionProvider
           // Remove colon from item.
           const property = attribute?.text.trim().replace(/:$/, '');
 
-          // Build the dot path.
-          path = property + (path !== '' ? '.' : '') + path;
+          // Build the path.
+          path = property + (path !== '' ? '/' : '') + path;
         }
       }
       line--;
@@ -410,7 +421,7 @@ export default class RecipesCompletionProvider
     console.log(`Parent attribute ${propertyPath}`);
 
     /**
-     * Flattens a nested object into a single-depth object with dot-notation keys.
+     * Flattens a nested object into a single-depth object.
      * @todo move to utils.
      *
      * @param {Object} obj - The object to flatten.
@@ -421,7 +432,7 @@ export default class RecipesCompletionProvider
     const flattenObject = (obj: any, parentKey = '', result: any = {}): any => {
       for (const key in obj) {
         if (obj.hasOwnProperty(key)) {
-          const newKey = parentKey ? `${parentKey}.${key}` : key;
+          const newKey = parentKey ? `${parentKey}/${key}` : key;
           if (
             typeof obj[key] === 'object' &&
             obj[key] !== null &&
@@ -437,15 +448,15 @@ export default class RecipesCompletionProvider
     };
 
     /**
-     * Finds a value in a flattened object using a dot-notation path.
+     * Finds a value in a flattened object by comparing the keys. The keys are tested using regex.
      * @todo move to utils
      *
      * @param {Object} obj - The object.
-     * @param {string} path - The path to search with dot-notation.
+     * @param {string} path - The path to search.
      * @returns {*} - The value at the specified path, or false if not found.
      */
     const getValueByPath = (obj: any, path: string): any => {
-      // Flatten the object, converting the keys to dot-notation.
+      // Flatten the object.
       const flattenedObj = flattenObject(obj);
 
       // Loop through each item in the flattened object.
@@ -455,32 +466,30 @@ export default class RecipesCompletionProvider
         }
 
           // Split the path into an array.
-          const pathArray = path.split('.');
+        const pathArray = path.split('/');
 
-          // Split the key for all dots and store in an array
-          const keyArray = key.split('.');
+        // Split the key.
+        const keyArray = key.split('/');
 
-        // Loop through every item
-        // Removing values with '*' from the array.
-        let ind = 0;
-        let item = undefined;
-        do {
-          item = keyArray[ind];
+        // Check if the arrays contain the same size.
+        if (keyArray.length !== pathArray.length) {
+          continue;
+        }
+
+        // Try to match each item using regex.
+        keyArray.forEach((item, index) => {
+          // Update items that contain only star, otherwise the regex won't work.
           if (item === '*') {
-            // Remove item.
-            keyArray.splice(ind, 1);
-
-            // Remove the corresponding item from pathArray.
-              if (ind < pathArray.length) {
-                pathArray.splice(ind, 1);
-            }
-          } else {
-            ind++;
+            item = '.*';
           }
-        } while (item !== undefined);
+          // If the regex matches, we copy the item from path to the pathArray.
+          if (pathArray[index].match(item)) {
+            keyArray[index] = pathArray[index];
+          }
+        });
 
-          // Convert keyArray into string, using dot-notation.
-          if (keyArray.join('.') === pathArray.join('.')) {
+        // Convert keyArray into string, using slashes.
+        if (keyArray.join('/') === pathArray.join('/')) {
             return flattenedObj[key];
           }
         }
@@ -489,10 +498,27 @@ export default class RecipesCompletionProvider
     };
 
     // Check if the property path matches any wildcard from suggestions-mapping.json.
-    let path = getValueByPath(suggestionsMapping, propertyPath);
-    if (path !== false) {
+    // @todo: Need to start
+    const value = getValueByPath(suggestionsMapping, propertyPath);
+     if (value !== false) {
+      // Split the value to decide how to fetch the information.
+      const [type, detail] = value.split(':');
+      switch (type) {
+        case 'ref':
       // Update path to properties.
-      propertyPath = path;
+          propertyPath = detail;
+          break;
+
+        case 'callback': {
+          const callback = detail;
+          if (functionMap[callback]) {
+            // Invoke callback function.
+            await functionMap[callback](propertyPath, this);
+          } else {
+            console.error(`Callback ${callback} is not supported yet.`);
+          }
+        }
+      }
     }
 
     // Get completions for the property path.

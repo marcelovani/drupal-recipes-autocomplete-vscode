@@ -1,0 +1,92 @@
+{
+  "comment": "This file provides a mapping to fill in the items that are dynamic. The values represent the path (dot-notation) in the completion objects.",
+  "config": {
+    "actions": {
+      "*": {
+        "set": {
+          "property_name": "ref:config/actions"
+        },
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems",
+        "setRegion": "callback:getRegionNames",
+        "hideComponent": "callback:getComponentNames",
+        "hideComponents": ["callback:getComponentNames"],
+        "grantPermission": "callback:getUserPermissions",
+        "setThirdPartySetting": {
+          "module": "callback:getModuleNames",
+          "key": "ref:config/actions"
+        },
+        "grantPermissionsForEachTaxonomyVocabulary": "callback:getVocabularies",
+        "grantPermissionsForEachMediaType": "callback:getMediaTypes"
+      },
+      "block.block.*": {
+        "setRegion": "callback:getRegionNames",
+        "placeBlockInDefaultTheme": {
+          "id": "callback:getBlockIds",
+          "region": {
+            "getThemeNames()": "callback:getRegionNames"
+          },
+          "default_region": "callback:getRegionNames",
+          "plugin": "callback:getPluginName"
+        },
+        "placeBlockInAdminTheme": {
+          "id": "callback:getBlockIds",
+          "region": {
+            "getThemeNames()": "callback:getRegionNames"
+          },
+          "default_region": "callback:getRegionNames",
+          "plugin": "callback:getPluginName"
+        },
+        "setThirdPartySetting": {
+          "module": "callback:getModuleNames",
+          "key": "ref:config/actions"
+        },
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "core.entity_form_display.*.*.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "core.entity_view_display.*.*.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "contact.form.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "editor.editor.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "field.field.*.*.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "field.storage.*.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "workflows.workflow.*": {
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      },
+      "user.role.*": {
+        "grantPermissions": "ref:global/permissions",
+        "create": "callback:getConfigItems",
+        "createIfNotExists": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigItems"
+      }
+    }
+  }
+}
