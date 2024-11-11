@@ -55,9 +55,8 @@ export default class DrupalWorkspace extends Disposable {
 
   async findFiles(
     include: GlobPattern,
-    ...args: Tail<Parameters<typeof workspace['findFiles']>>
+    ...args: Tail<Parameters<(typeof workspace)['findFiles']>>
   ) {
     return workspace.findFiles(include, ...args);
   }
-
 }

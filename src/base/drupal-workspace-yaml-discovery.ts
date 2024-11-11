@@ -1,12 +1,18 @@
 import { workspace, Uri } from 'vscode';
 import { parse as parseYaml } from 'yaml';
-import { globalStorage } from '../base/suggestions-callbacks';
+import { cacheItem, addToCache } from '../utils/cache';
+import DrupalWorkspace from './drupal-workspace';
 
-export class yaml {
-  private context: any;
+export class YamlDiscovery {
+  private drupalWorkspace: DrupalWorkspace;
+  private cache: Map<string, cacheItem[]>;
 
-  constructor(context: any) {
-    this.context = context;
+  constructor(
+    drupalWorkspace: DrupalWorkspace,
+    cache: Map<string, cacheItem[]>
+  ) {
+    this.drupalWorkspace = drupalWorkspace;
+    this.cache = cache;
   }
 
   /**
@@ -14,7 +20,7 @@ export class yaml {
    * stores the items in cache, adds the items to the autocomplete list.
    */
   async parseYamlFiles(): Promise<void> {
-    const files = await this.context.drupalWorkspace.findFiles(
+    const files = await this.drupalWorkspace.findFiles(
       '**/*.yml',
       '{vendor, node_modules}'
     );
@@ -88,7 +94,10 @@ export class yaml {
   detectFileType(filePath: string): string | boolean {
     // List of types, the order is important, for example:
     // A profile can contain modules, so we need to test for modules first.
-    const mapping = [
+    type MappingItem = { [key: string]: string };
+
+    // Define the mapping array with the correct type
+    const mapping: MappingItem[] = [
       { '/recipe.yml': 'recipe' },
       { '/recipe.yaml': 'recipe' },
       { '/config/': 'config' },
@@ -102,7 +111,7 @@ export class yaml {
 
     // Check if the file path matches any of the items in the mapping.
     const findValueByKey = (
-      mapping: any[],
+      mapping: MappingItem[],
       filePath: string
     ): string | boolean => {
       for (const item of mapping) {
@@ -121,6 +130,38 @@ export class yaml {
     };
 
     return findValueByKey(mapping, filePath);
+  }
+
+  /**
+   * Stores autocomplete item in cache.
+   *
+   * @param string key
+   *   The key in the object using slash i.e. config/actions
+   * @param string label
+   *   The label.
+   * @param string documentation
+   *   The documentation.
+   * @param string insertText
+   *   The text to be inserted.
+   */
+  storeCompletionItem(
+    key: string,
+    filePath: string,
+    parent: string,
+    label: string,
+    documentation: string,
+    insertText: string
+  ): void {
+    // Create new completion item.
+    addToCache(
+      key,
+      filePath,
+      parent,
+      label,
+      documentation,
+      insertText,
+      this.cache
+    );
   }
 
   /**
@@ -159,8 +200,10 @@ export class yaml {
           const label = `${contents.name} (${type.toUpperCase()})`;
 
           // Add autocomplete suggestions for install.
-          this.context.storeCompletionItem(
+          this.storeCompletionItem(
             'install',
+            filePath,
+            '',
             label,
             contents.description,
             `${text}\n- `
@@ -168,8 +211,10 @@ export class yaml {
 
           // Add autocomplete suggestions for config/import.
           const name = text.split('.')[0];
-          this.context.storeCompletionItem(
+          this.storeCompletionItem(
             'config/import',
+            filePath,
+            '',
             label,
             contents.description,
             `${name}:\n  - `
@@ -186,8 +231,10 @@ export class yaml {
           const label = `${contents.name} (${type.toUpperCase()})`;
 
           // Add autocomplete suggestions for recipes.
-          this.context.storeCompletionItem(
+          this.storeCompletionItem(
             'recipes',
+            filePath,
+            '',
             label,
             contents.description,
             `${text}\n- `
@@ -201,38 +248,48 @@ export class yaml {
         regex = /\/config\/install\/([^/]+)\.yml$/;
         match = filePath.match(regex);
         if (match && typeof match[1] !== 'undefined') {
-          const text = match[1];
-          const label = `${text} (${type.toUpperCase()})`;
+          const configName = match[1];
+          const label = `${configName} (${type.toUpperCase()})`;
 
-          // Store config info in the global Storage.
-          globalStorage.push({
-            config: text,
-            path: filePath,
-          });
-
-          // Add autocomplete suggestions for config/actions.
-          this.context.storeCompletionItem(
-            'config/actions',
+          // Store the config name. The config contents will be fetched when invoked by a callback.
+          this.storeCompletionItem(
+            configName,
+            filePath,
+            '',
             label,
             'Config',
-            `${text}:\n  `
+            `${configName}:\n  `
+          );
+
+          // Add autocomplete suggestions for config/actions.
+          this.storeCompletionItem(
+            'config/actions',
+            filePath,
+            '',
+            label,
+            'Config',
+            `${configName}:\n  `
           );
 
           // Also add autocomplete for config/import/module_theme_name.
           // @todo: This is not working correctly, we need to get the available configs in the module/config/install folder.
-          const name = text.split('.')[0];
-          this.context.storeCompletionItem(
+          const name = configName.split('.')[0];
+          this.storeCompletionItem(
             `config/import/${name}`,
+            filePath,
+            '',
             label,
             'Config',
-            `${text}\n- `
+            `${configName}\n- `
           );
         }
         break;
 
       case 'content':
-        this.context.storeCompletionItem(
+        this.storeCompletionItem(
           'content',
+          filePath,
+          '',
           'Content is not supported yet',
           'Config',
           `\n- `
@@ -242,10 +299,15 @@ export class yaml {
       case 'permission':
         // Loop through the permissions.
         for (const key in contents) {
-          if (Object.prototype.hasOwnProperty.call(contents, key) && contents[key].title) {
+          if (
+            Object.prototype.hasOwnProperty.call(contents, key) &&
+            contents[key].title
+          ) {
             // Store permissions in global object.
-            this.context.storeCompletionItem(
+            this.storeCompletionItem(
               'global/permissions',
+              filePath,
+              '',
               `${contents[key].title} (Permission)`,
               'Permission',
               `'${key}'\n- `
