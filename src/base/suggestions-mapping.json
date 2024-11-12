@@ -8,6 +8,8 @@
         },
         "create": "callback:getConfigItems",
         "createIfNotExists": "callback:getConfigItems",
+        "createForEach": "callback:createForEach",
+        "createForEachIfNotExists": "callback:createForEachIfNotExists",
         "simpleConfigUpdate": "callback:getConfigItems",
         "setRegion": "callback:getRegionNames",
         "hideComponent": "callback:getComponentNames",

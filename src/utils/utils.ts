@@ -69,7 +69,8 @@ export function getValueByPath(
     const pathArray = path.split(separator);
 
     // Split the key.
-    const keyArray = key.split(separator);
+    // eslint-disable-next-line prefer-const
+    let keyArray = key.split(separator);
 
     // Check if the arrays contain the same size.
     if (keyArray.length !== pathArray.length) {

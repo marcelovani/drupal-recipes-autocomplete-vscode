@@ -2,13 +2,32 @@ import fs from 'fs';
 import { URL } from 'url';
 import { addToCache } from '../utils/cache';
 
-interface FunctionDictionary {
-  [key: string]: ((...args: any[]) => any) | object | any; // Accepts functions, objects, or any value
+interface KnownCallbacks {
+  [key: string]: ((...args: any[]) => any) | object | any;
 }
 
-export const functionMap: FunctionDictionary = {
+export const functionMap: KnownCallbacks = {
   getConfigItems,
+  notImplementedYet,
 };
+
+export async function notImplementedYet(
+  detail: string,
+  context: any
+): Promise<any> {
+  // Add completion item for config contents.
+  addToCache(
+    detail,
+    '',
+    '',
+    'Sorry, not implemented yet, just DIY for now.',
+    '',
+    '',
+    context.cache
+  );
+
+  console.error(`Callback ${detail} is not supported yet.`);
+}
 
 export async function getConfigItems(
   detail: string,

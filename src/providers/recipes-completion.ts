@@ -83,7 +83,7 @@ export default class RecipesCompletionProvider
             // Callback functions are defined in src/base/suggestion-callbacks.ts
             await functionMap[callback](propertyPath, this);
           } else {
-            console.error(`Callback ${callback} is not supported yet.`);
+            await functionMap['notImplementedYet'](propertyPath, this);
           }
         }
       }
