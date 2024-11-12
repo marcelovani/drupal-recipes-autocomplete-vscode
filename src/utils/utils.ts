@@ -79,7 +79,7 @@ export function getValueByPath(
     // Try to match each item using regex.
     keyArray.forEach((item, index) => {
       // If the regex matches, we copy the item from path to the pathArray.
-      if (pathArray[index].match(item === '*' ? '.*' : item)) {
+      if (keyArray[index] !== pathArray[index] && pathArray[index].match(item === '*' ? '.*' : `${item}$`)) {
         keyArray[index] = pathArray[index];
       }
     });
