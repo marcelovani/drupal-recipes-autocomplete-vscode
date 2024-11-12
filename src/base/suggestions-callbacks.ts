@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { URL } from 'url';
 import { addToCache } from '../utils/cache';
+import { parse } from 'yaml';
 
 interface KnownCallbacks {
   [key: string]: ((...args: any[]) => any) | object | any;
@@ -8,6 +9,7 @@ interface KnownCallbacks {
 
 export const functionMap: KnownCallbacks = {
   getConfigItems,
+  getConfigContents,
   notImplementedYet,
 };
 
@@ -23,6 +25,7 @@ export async function notImplementedYet(
     'Sorry, not implemented yet, just DIY for now.',
     '',
     '',
+    'not_implemented',
     context.cache
   );
 
@@ -33,8 +36,60 @@ export async function getConfigItems(
   detail: string,
   context: any
 ): Promise<any> {
+  const separator = '/';
+
   // Get config name from detail.
-  const parts = detail.split('/');
+  const parts = detail.split(separator);
+
+  // Remove the last segment.
+  parts.pop();
+
+  // The last segment is the config name.
+  const path = parts.join(separator);
+
+  // Get config contents.
+  const configContents = await getConfigContents(path, context);
+
+  try {
+    // Parse config contents.
+    const items = configContents.map((item: string) => parse(item));
+    const keys = new Set();
+
+    // Get all keys.
+    items.forEach((item: { [key: string]: string }) => {
+      // Add each key of the current object to the Set
+      Object.keys(item).forEach((key) => keys.add(key));
+    });
+
+    keys.forEach((item) => {
+        // Add completion item for config contents.
+        addToCache(
+          detail,
+          '',
+          '',
+          `${item}`,
+          'Config item',
+          `${item}`,
+          'config_item',
+          context.cache
+        );
+    });
+
+    // Convert the Set to an array and return it.
+    return Array.from(keys);
+  } catch (err) {
+    // Ignore errors.
+  }
+}
+
+export async function getConfigContents(
+  detail: string,
+  context: any
+): Promise<any> {
+  const separator = '/';
+
+  // Get config name from detail.
+  const parts = detail.split(separator);
 
   // Remove the last segment.
   parts.pop();
@@ -75,8 +130,11 @@ export async function getConfigItems(
           label,
           contents,
           `${contents}\n  `,
+          'config_contents',
           context.cache
         );
+
+        return contents;
       }
     );
 

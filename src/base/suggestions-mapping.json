@@ -4,13 +4,13 @@
     "actions": {
       "*": {
         "set": {
-          "property_name": "ref:config/actions"
+          "property_name": "callback:getConfigItems"
         },
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
         "createForEach": "callback:createForEach",
         "createForEachIfNotExists": "callback:createForEachIfNotExists",
-        "simpleConfigUpdate": "callback:getConfigItems",
+        "simpleConfigUpdate": "callback:getConfigContents",
         "setRegion": "callback:getRegionNames",
         "hideComponent": "callback:getComponentNames",
         "hideComponents": ["callback:getComponentNames"],
@@ -44,50 +44,50 @@
           "module": "callback:getModuleNames",
           "key": "ref:config/actions"
         },
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "core.entity_form_display.*.*.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "core.entity_view_display.*.*.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "contact.form.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "editor.editor.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "field.field.*.*.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "field.storage.*.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "workflows.workflow.*": {
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       },
       "user.role.*": {
         "grantPermissions": "ref:global/permissions",
-        "create": "callback:getConfigItems",
-        "createIfNotExists": "callback:getConfigItems",
-        "simpleConfigUpdate": "callback:getConfigItems"
+        "create": "callback:getConfigContents",
+        "createIfNotExists": "callback:getConfigContents",
+        "simpleConfigUpdate": "callback:getConfigContents"
       }
     }
   }
