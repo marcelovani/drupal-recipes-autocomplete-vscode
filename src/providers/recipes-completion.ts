@@ -13,6 +13,7 @@ import { functionMap } from '../base/suggestions-callbacks';
 import { getValueByPath, getPropertyPath } from '../utils/utils';
 import { YamlDiscovery } from '../base/drupal-workspace-yaml-discovery';
 import { cacheItem } from '../utils/cache';
+import { getIconKind } from '../utils/icons';
 
 export default class RecipesCompletionProvider
   extends DrupalWorkspaceProvider
@@ -94,7 +95,7 @@ export default class RecipesCompletionProvider
     // Workaround to remove duplicated entries.
     // @todo Investigate why there are multiple duplications.
     cachedItems = cachedItems.filter((current, index, self) => {
-      return index === self.findIndex((i) => i.item.filePath === current.item.filePath);
+      return index === self.findIndex((i) => i.item.completion.label === current.item.completion.label);
     });
 
     console.debug('Filtered options', cachedItems);
@@ -105,6 +106,7 @@ export default class RecipesCompletionProvider
         detail: current.key,
         documentation: current.item.completion.documentation,
         insertText: new SnippetString(current.item.completion.insertText),
+        kind: getIconKind(current.item.completion.symbolType),
       };
       return newCompletionItem;
     });

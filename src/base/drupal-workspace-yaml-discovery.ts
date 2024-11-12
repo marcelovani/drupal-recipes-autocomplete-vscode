@@ -143,6 +143,8 @@ export class YamlDiscovery {
    *   The documentation.
    * @param string insertText
    *   The text to be inserted.
+   * @param string symbolType
+   *   The icon to be displayed.
    */
   storeCompletionItem(
     key: string,
@@ -150,7 +152,8 @@ export class YamlDiscovery {
     parent: string,
     label: string,
     documentation: string,
-    insertText: string
+    insertText: string,
+    symbolType: string,
   ): void {
     // Create new completion item.
     addToCache(
@@ -160,6 +163,7 @@ export class YamlDiscovery {
       label,
       documentation,
       insertText,
+      symbolType,
       this.cache
     );
   }
@@ -206,7 +210,8 @@ export class YamlDiscovery {
             '',
             label,
             contents.description,
-            `${text}\n- `
+            `${text}\n- `,
+            type,
           );
 
           // Add autocomplete suggestions for config/import.
@@ -217,7 +222,8 @@ export class YamlDiscovery {
             '',
             label,
             contents.description,
-            `${name}:\n  - `
+            `${name}:\n  - `,
+            type,
           );
         }
         break;
@@ -237,7 +243,8 @@ export class YamlDiscovery {
             '',
             label,
             contents.description,
-            `${text}\n- `
+            `${text}\n- `,
+            type,
           );
         }
         break;
@@ -258,7 +265,8 @@ export class YamlDiscovery {
             '',
             label,
             'Config',
-            `${configName}:\n  `
+            `${configName}:\n  `,
+            type,
           );
 
           // Add autocomplete suggestions for config/actions.
@@ -268,7 +276,8 @@ export class YamlDiscovery {
             '',
             label,
             'Config',
-            `${configName}:\n  `
+            `${configName}:\n  `,
+            type,
           );
 
           // Also add autocomplete for config/import/module_theme_name.
@@ -280,7 +289,8 @@ export class YamlDiscovery {
             '',
             label,
             'Config',
-            `${configName}\n- `
+            `${configName}\n- `,
+            `${type}_item`,
           );
         }
         break;
@@ -292,7 +302,8 @@ export class YamlDiscovery {
           '',
           'Content is not supported yet',
           'Config',
-          `\n- `
+          `\n- `,
+          type,
         );
         break;
 
@@ -310,7 +321,8 @@ export class YamlDiscovery {
               '',
               `${contents[key].title} (Permission)`,
               'Permission',
-              `'${key}'\n- `
+              `'${key}'\n- `,
+              type,
             );
           }
         }

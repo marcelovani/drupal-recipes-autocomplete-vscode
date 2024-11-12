@@ -36,6 +36,11 @@ export interface cacheItem {
        * The completion text.
        */
       insertText: string;
+
+      /**
+       * Sumbol type.
+       */
+      symbolType: string;
     };
   };
 }
@@ -55,6 +60,8 @@ export interface cacheItem {
  *   The documentation.
  * @param string insertText
  *   The text to be inserted.
+ * @param string symbolType
+ *   The icon to be displayed.
  * @param map cache
  *   The cache object.
  */
@@ -65,6 +72,7 @@ export function addToCache(
   label: string,
   documentation: string,
   insertText: string,
+  symbolType: string,
   cache: Map<string, cacheItem[]>
 ): void {
   const cacheItem: cacheItem = {
@@ -76,6 +84,7 @@ export function addToCache(
         label,
         documentation,
         insertText,
+        symbolType,
       },
     },
   };
