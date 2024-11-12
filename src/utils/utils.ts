@@ -118,6 +118,7 @@ export function getPropertyPath(position: Position): string {
   let line = position.line;
   let lastCol = 0;
   let path = '';
+  const separator = '/';
 
   // The column of the property being evaluated.
   let propertyCol = 0;
@@ -125,26 +126,37 @@ export function getPropertyPath(position: Position): string {
   do {
     const attribute = window.activeTextEditor?.document.lineAt(line);
 
-    // Check if there are leading spaces before the item.
-    const spaces = attribute?.text.match(/^ */);
-    if (attribute?.text !== '' && spaces) {
-      propertyCol = spaces[0].length;
+    const text = attribute?.text !== undefined ? attribute?.text : '';
 
-      // Initialise lastCol.
+    // Check if there are leading spaces before the item.
+    const leadingSpaces = text.match(/^ */);
+    if (text !== '' && leadingSpaces) {
+      // Update propertyCol.
+      propertyCol = leadingSpaces[0].length;
+
       if (lastCol === 0) {
+        // Initialise lastCol.
         lastCol = propertyCol;
       }
+    }
 
+    // Check if there is a property on the same line.
+    if (line === position.line && text.trim()[text.trim().length - 1] === ':' && leadingSpaces) {
+      // Initialise path.
+      path = text.trim().replace(/:$/, '');
+    }
+    // Traverse the editor upwards.
+    else if (text !== '' && leadingSpaces) {
       // Check if the current item is the parent of previous item.
       if (propertyCol < lastCol) {
         // Update the position of the lastCol.
         lastCol = propertyCol;
 
         // Remove colon from item.
-        const property = attribute?.text.trim().replace(/:$/, '');
+        const property = text.trim().replace(/:$/, '');
 
         // Build the path.
-        path = property + (path !== '' ? '/' : '') + path;
+        path = property + (path !== '' ? separator : '') + path;
       }
     }
     line--;
