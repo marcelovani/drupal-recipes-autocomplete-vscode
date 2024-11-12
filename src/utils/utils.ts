@@ -130,7 +130,8 @@ export function getPropertyPath(position: Position): string {
 
     // Check if there are leading spaces before the item.
     const leadingSpaces = text.match(/^ */);
-    if (text !== '' && leadingSpaces) {
+    // Ignore lines with leading spaces or lines that contain only hyphen.
+    if (leadingSpaces && text !== '' && text.trim() !== '-') {
       // Update propertyCol.
       propertyCol = leadingSpaces[0].length;
 
@@ -141,12 +142,13 @@ export function getPropertyPath(position: Position): string {
     }
 
     // Check if there is a property on the same line.
-    if (line === position.line && text.trim()[text.trim().length - 1] === ':' && leadingSpaces) {
+    if (leadingSpaces && line === position.line && text.trim()[text.trim().length - 1] === ':') {
       // Initialise path.
       path = text.trim().replace(/:$/, '');
     }
     // Traverse the editor upwards.
-    else if (text !== '' && leadingSpaces) {
+    // Ignore lines with leading spaces or lines that contain only hyphen.
+    else if (leadingSpaces && text !== '' && text.trim() !== '-') {
       // Check if the current item is the parent of previous item.
       if (propertyCol < lastCol) {
         // Update the position of the lastCol.

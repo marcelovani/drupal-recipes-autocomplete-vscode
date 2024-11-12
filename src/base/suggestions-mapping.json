@@ -6,6 +6,9 @@
         "set": {
           "property_name": "callback:getConfigItems"
         },
+        "setMultiple": {
+          "property_name": "callback:getConfigItems"
+        },
         "create": "callback:getConfigContents",
         "createIfNotExists": "callback:getConfigContents",
         "createForEach": "callback:createForEach",
