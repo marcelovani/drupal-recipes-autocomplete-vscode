@@ -1,4 +1,4 @@
-## 1.1.0 (2024-11-13)
+## 1.1.1 (2024-11-13)
 
  Bug fixes
   - Fixed bug with text matching on editor

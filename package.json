@@ -5,7 +5,7 @@
   "icon": "docs/icon.png",
   "publisher": "marcelovani",
   "author": "Marcelo Vani",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "license": "MIT",
   "engines": {
     "vscode": "^1.95.0"
