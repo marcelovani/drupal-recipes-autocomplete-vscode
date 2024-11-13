@@ -37,12 +37,13 @@ Unit tests are not fully working, but you can debug and test it manually.
 5. You can now test the autocomplete suggestions and recipe validations.
 
 ### Packaging and deploying
+Add entry in the Changelog with version number/date and list of changes.
+Update the version in package.json to match the version in the Changelog.
 
-To package you need to use vsce:
+To package you need to using:
 ```bash
-npm install -g @vscode/vsce
-vsce package
-vsce publish [version]
+npm run package
+npm run publish
 ```
 
 See more details in the (VS Code documentation)[https://code.visualstudio.com/api/working-with-extensions/publishing-extension]
