@@ -19,8 +19,12 @@
         "hideComponents": ["callback:getComponentNames"],
         "grantPermission": "ref:global/permissions",
         "setThirdPartySetting": {
-          "module": "callback:getModuleNames",
-          "key": "ref:config/actions"
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        },
+        "setThirdPartySettings": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
         },
         "grantPermissionsForEachTaxonomyVocabulary": "callback:getVocabularies",
         "grantPermissionsForEachMediaType": "callback:getMediaTypes"
@@ -44,8 +48,12 @@
           "plugin": "callback:getPluginName"
         },
         "setThirdPartySetting": {
-          "module": "callback:getModuleNames",
-          "key": "ref:config/actions"
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        },
+        "setThirdPartySettings": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
         },
         "create": "callback:getConfigContents",
         "createIfNotExists": "callback:getConfigContents",
@@ -54,12 +62,28 @@
       "core.entity_form_display.*.*.*": {
         "create": "callback:getConfigContents",
         "createIfNotExists": "callback:getConfigContents",
-        "simpleConfigUpdate": "callback:getConfigContents"
+        "simpleConfigUpdate": "callback:getConfigContents",
+        "setThirdPartySetting": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        },
+        "setThirdPartySettings": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        }
       },
       "core.entity_view_display.*.*.*": {
         "create": "callback:getConfigContents",
         "createIfNotExists": "callback:getConfigContents",
-        "simpleConfigUpdate": "callback:getConfigContents"
+        "simpleConfigUpdate": "callback:getConfigContents",
+        "setThirdPartySetting": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        },
+        "setThirdPartySettings": {
+          "module": "ref:install",
+          "key": "callback:getConfigItems"
+        }
       },
       "contact.form.*": {
         "create": "callback:getConfigContents",
@@ -69,7 +93,10 @@
       "editor.editor.*": {
         "create": "callback:getConfigContents",
         "createIfNotExists": "callback:getConfigContents",
-        "simpleConfigUpdate": "callback:getConfigContents"
+        "simpleConfigUpdate": "callback:getConfigContents",
+        "addItemToToolbar": {
+          "item_name": "callback:notImplementedYet"
+        }
       },
       "field.field.*.*.*": {
         "create": "callback:getConfigContents",

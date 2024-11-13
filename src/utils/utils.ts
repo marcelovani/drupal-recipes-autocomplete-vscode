@@ -130,8 +130,8 @@ export function getPropertyPath(position: Position): string {
 
     // Check if there are leading spaces before the item.
     const leadingSpaces = text.match(/^ */);
-    // Ignore lines with leading spaces or lines that contain only hyphen.
-    if (leadingSpaces && text !== '' && text.trim() !== '-') {
+    // Ignore lines with leading spaces.
+    if (leadingSpaces && text !== '') {
       // Update propertyCol.
       propertyCol = leadingSpaces[0].length;
 
