@@ -1,3 +1,18 @@
+## 1.1.0 (2024-11-13)
+
+ Bug fixes
+  - Fixed bug with text matching on editor
+  - Fixed bug with detection of parent property on empty lines
+  - Fixed Eslint errors
+
+ New functionalities
+ - Major code refactor and clean up
+ - Refactored the caching mechanism
+ - Added icons for each completion type
+ - Updated the mapping for suggestion callbacks
+ - Implemented mew callbacks
+ - Added support for more Config actions: set/setMultiple, setThirdPartySetting/setThirdPartySettings, simpleConfigUpdate, addTaxonomyVocabularies, addItemToToolbar, addToAllBundles, grantPermission/grantPermissions, setDescription, setLabel, setMessage, setRecipients, setRedirectPath, setRegion, setReply, setRequired, setSettings, setTranslatable, setWeight
+
 ## 1.0.7 (2024-11-04)
 
 - Updated documentation and url for Schema Store.
