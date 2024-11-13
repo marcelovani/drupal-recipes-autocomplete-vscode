@@ -23,8 +23,8 @@ https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
 
 ## TODO
 - List the extension as NPM package in https://www.npmjs.com/
-- Use schemas to provide autocomplete items, depends on https://www.drupal.org/project/distributions_recipes/issues/3475786
 - Automatically generate composer.json for the Recipe
 - Support Default Content
 - Do not show autocomplete items that are already in the Recipe
 - Add unit tests
+- Fix Lint warnings
