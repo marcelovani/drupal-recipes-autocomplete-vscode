@@ -1,0 +1,77 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "Code tour",
+  "steps": [
+    {
+      "file": "package.json",
+      "description": "The static items on Recipes are provided by SchemaStore, examples:\nname, description, type, install, recipes, config actions\n\nThe completion items and validation are provided by Yaml extention.",
+      "line": 50
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "This is the class that provides the extension",
+      "line": 18
+    },
+    {
+      "file": "src/base/suggestions-mapping.json",
+      "description": "Dynamic items are mapped in this file, its possible to use a reference to another item om the tree or invoke a callback.\nOn this example, when we position the cursor under config/actions/block.block.foo/setRegion it will invoke getRegionNames() to fetch the values dynamically.",
+      "line": 33
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "It implements CompletionItemProvider",
+      "line": 20
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "Here we register the completion item provider to make it become known to VS Code.",
+      "line": 31
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "This class is responsible for scanning the Drupal codebase, categorizing the information and storing in cache.",
+      "line": 43
+    },
+    {
+      "file": "src/base/drupal-workspace-yaml-discovery.ts",
+      "description": "This method will detect if the yml file is a Recipe, Profile, Module, etc",
+      "line": 94
+    },
+    {
+      "file": "src/base/drupal-workspace-yaml-discovery.ts",
+      "description": "This method will read the contents of the yml file and add completion items to the cache",
+      "line": 190
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "This method is invoked when the autocomplete is triggered i.e. by pressing ^ + space",
+      "line": 60
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "At this point we loop the suggestion mapping to find a match for the property path",
+      "line": 69
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "At this point, we get the path of the item based on the cursor position in the editor i.e. config/actions/user.roles.admin/create",
+      "line": 65
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "If the mapping has a callback it is invoked here",
+      "line": 82
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "Here we filter the available options based on the context",
+      "line": 98
+    },
+    {
+      "file": "src/providers/recipes-completion.ts",
+      "description": "Here we return the completion items to VS Code",
+      "line": 104
+    }
+  ],
+  "ref": "main"
+}
