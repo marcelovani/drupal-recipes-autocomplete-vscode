@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "module": "ESNext",
+    "module": "commonjs",
     "resolveJsonModule": true,
     "outDir": "./out",
     "sourceMap": true,
@@ -10,12 +10,10 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
-    "moduleResolution": "node"
-    /* Additional Checks */
-    // "noImplicitReturns": true, /* Report error when not all code paths in function return a value. */
-    // "noFallthroughCasesInSwitch": true, /* Report errors for fallthrough cases in switch statement. */
-    // "noUnusedParameters": true,  /* Report errors on unused parameters. */
+    "moduleResolution": "node",
+    "allowJs": true,
+    "types": ["node", "vscode", "mocha"]
   },
-  "include": ["src", "eslint.config.mjs"],
+  "include": ["src"],
   "exclude": ["node_modules", "out", ".vscode-test"]
 }

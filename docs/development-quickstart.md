@@ -11,25 +11,23 @@
 
 ## Setup
 
-* install the recommended extensions (amodio.tsl-problem-matcher, ms-vscode.extension-test-runner, and dbaeumer.vscode-eslint)
-
+* Install the recommended extensions for VS Code:
+  * amodio.tsl-problem-matcher
+  * ms-vscode.extension-test-runner
+  * dbaeumer.vscode-eslint
 
 ## Get up and running straight away
 
-* Press `F5` to open a new window with your extension loaded.
+* Press (`F5` or Shift + F5 on Mac) to open a new VS Code window with your extension loaded.
 * Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
 * Set breakpoints in your code inside `src/extension.ts` to debug your extension.
-* Find output from your extension in the debug console.
+* Find output from your extension in the Debug Console.
 
 ## Make changes
 
 * You can relaunch the extension from the debug toolbar after changing code in `src/extension.ts`.
 * You can also reload (`Ctrl+R` or `Cmd+R` on Mac) the VS Code window with your extension to load your changes.
 
-
-## Explore the API
-
-* You can open the full set of our API when you open the file `node_modules/@types/vscode/index.d.ts`.
 
 ## Run tests
 
@@ -42,10 +40,9 @@
   * You can create folders inside the `test` folder to structure your tests any way you want.
 
 ## Compiling
-- npm install -g vsce
-- vsce verify
-- vsce package
-- vsce publish 1.0.1
+* Install [vsce](https://github.com/microsoft/vsce) by running `npm install -g vsce`.
+* Run `vsce package` to package the extension.
+* Run `vsce publish 1.0.1` to publish the extension.
 
 ## Go further
 
