@@ -79,6 +79,7 @@ export async function getConfigItems(
     return Array.from(keys);
   } catch (err) {
     // Ignore errors.
+    }
   }
 }
 

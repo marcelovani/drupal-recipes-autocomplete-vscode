@@ -18,7 +18,7 @@
 
 ## Get up and running straight away
 
-* Press (`F5` or Shift + F5 on Mac) to open a new VS Code window with your extension loaded.
+* Press (`F5` or Fn + F5 on Mac) to open a new VS Code window with your extension loaded.
 * Run your command from the command palette by pressing (`Ctrl+Shift+P` or `Cmd+Shift+P` on Mac) and typing `Hello World`.
 * Set breakpoints in your code inside `src/extension.ts` to debug your extension.
 * Find output from your extension in the Debug Console.
