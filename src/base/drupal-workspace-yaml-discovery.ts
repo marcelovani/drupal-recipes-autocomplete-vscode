@@ -60,7 +60,7 @@ export class YamlDiscovery {
       try {
         const buffer = await workspace.fs.readFile(path);
         contents = parseYaml(buffer.toString());
-      } catch (err) {
+      } catch {
         // Ignore the error, we will test the contents below.
       }
 
