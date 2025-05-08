@@ -77,9 +77,8 @@ export async function getConfigItems(
 
     // Convert the Set to an array and return it.
     return Array.from(keys);
-  } catch (err) {
+  } catch {
     // Ignore errors.
-    }
   }
 }
 
