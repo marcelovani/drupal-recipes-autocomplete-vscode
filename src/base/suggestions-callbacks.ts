@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { URL } from 'url';
-import { addToCache } from '../utils/cache';
+import { addToCache, cacheItem } from '../utils/cache';
 import { parse } from 'yaml';
 
 interface KnownCallbacks {
@@ -102,11 +102,9 @@ export async function getConfigContents(
   // Read each file asynchronously.
   try {
     const fileReadPromises = cachedItems.map(
-      async (current: {
-        item: { filePath: string | { toString: () => string } };
-      }) => {
-        let label = null;
-
+      // filePath is a string on cacheItem; the union this used to declare was
+      // wider than the type it reads from, and newer @types/node rejects it.
+      async (current: cacheItem) => {
         const url = new URL(current.item.filePath).pathname;
 
         // Read the files asyncronously.
@@ -115,12 +113,12 @@ export async function getConfigContents(
         // Find the index of the workspace folder in the path.
         const workspaceFolder = context.drupalWorkspace.workspaceFolder.name;
         const workspaceIndex = url.indexOf(workspaceFolder);
-        if (workspaceIndex !== -1) {
-          // Extract the substring starting after the workspace folder.
-          label = url.substring(workspaceIndex + workspaceFolder.length);
-        } else {
-          label = url;
-        }
+        // Label the file relative to the workspace folder where it sits inside
+        // one, and by its full path where it does not.
+        const label =
+          workspaceIndex !== -1
+            ? url.substring(workspaceIndex + workspaceFolder.length)
+            : url;
 
         // Add completion item for config contents.
         addToCache(

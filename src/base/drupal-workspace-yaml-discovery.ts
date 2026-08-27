@@ -191,9 +191,10 @@ export class YamlDiscovery {
    *   The file contents.
    */
   processCompletionItem(type: string, path: Uri, contents: any): void {
-    // Prepare completion item.
-    let regex = null;
-    let match = null;
+    // Prepare completion item. Both are assigned by every branch that uses
+    // them, so there is nothing to initialise them to.
+    let regex: RegExp;
+    let match: RegExpMatchArray | null;
     const filePath: string = path.toString();
     switch (type) {
       case 'theme':
