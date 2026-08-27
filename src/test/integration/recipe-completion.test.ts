@@ -85,3 +85,26 @@ suite('Recipe completions', () => {
     );
   });
 });
+
+suite('Dependency directories', () => {
+  suiteSetup(async () => {
+    await activateExtension();
+  });
+
+  test('does not suggest modules from vendor or node_modules', async () => {
+    // Anchor on a suggestion that is expected, so the assertions below run
+    // against a populated cache rather than an empty one.
+    const labels = await completionLabelsAt(RECIPE, new vscode.Position(4, 8), [
+      'Recipe Test Module (MODULE)',
+    ]);
+
+    assert.ok(
+      !labels.includes('Vendored Module (MODULE)'),
+      'vendor/ must be excluded from the scan.'
+    );
+    assert.ok(
+      !labels.includes('Bundled Module (MODULE)'),
+      'node_modules/ must be excluded from the scan.'
+    );
+  });
+});

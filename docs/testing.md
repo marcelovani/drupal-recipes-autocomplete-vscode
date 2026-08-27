@@ -53,7 +53,14 @@ recipes/recipe_actions/recipe.yml                config action paths
 web/core/recipes/core_test_recipe/recipe.yml     a recipe to suggest
 web/modules/contrib/recipe_test_module/          info, permissions and config
 web/themes/contrib/recipe_test_theme/            a theme to suggest
+vendor/…/modules/vendored_module/                must never be suggested
+node_modules/…/modules/bundled_module/           must never be suggested
 ```
+
+The last two are module-shaped files inside dependency directories. The scan
+excludes `vendor` and `node_modules` at any depth, and the integration suite
+holds it to that. `.gitignore` re-includes the fixture's `node_modules` so it
+can be committed.
 
 The extension only activates when the workspace `composer.json` requires
 `drupal/core-recommended`, which is why the fixture has one.
