@@ -1,6 +1,6 @@
 import * as assert from 'assert';
 import * as vscode from 'vscode';
-import { activateExtension, completionLabelsAt } from './helpers';
+import { activateExtension, completionLabelsAt, completionsAt } from './helpers';
 
 const RECIPE = 'recipes/recipe_under_test/recipe.yml';
 const ACTIONS = 'recipes/recipe_actions/recipe.yml';
@@ -40,6 +40,19 @@ suite('Recipe completions', () => {
     await completionLabelsAt(RECIPE, new vscode.Position(7, 11), [
       'recipe_test_module.settings (CONFIG)',
     ]);
+  });
+
+  test('config suggestions carry an icon', async () => {
+    await completionLabelsAt(RECIPE, new vscode.Position(7, 11), [
+      'recipe_test_module.settings (CONFIG)',
+    ]);
+
+    const items = await completionsAt(RECIPE, new vscode.Position(7, 11));
+    const config = items.find(
+      (item) => item.label === 'recipe_test_module.settings (CONFIG)'
+    );
+
+    assert.strictEqual(config?.kind, vscode.CompletionItemKind.Property);
   });
 
   test('grantPermissions resolves the ref to the permission list', async () => {

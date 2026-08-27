@@ -14,6 +14,7 @@ export function getIconKind(type: string): number {
     recipe: 16,
     module: 1,
     profile: 18,
+    config: 9,
     config_item: 5,
     config_contents: 13,
     theme: 15,
