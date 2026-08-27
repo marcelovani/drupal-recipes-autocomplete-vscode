@@ -1,3 +1,5 @@
+import { parse as parseYaml } from 'yaml';
+
 /**
  * The slice of TextDocument that getPropertyPath reads.
  *
@@ -190,4 +192,80 @@ export function getPropertyPath(
   } while (propertyCol > 0);
 
   return path;
+}
+
+/**
+ * The values already written under a property path in a recipe.
+ *
+ * Used to keep the completion list from offering something the recipe already
+ * has. The document is parsed as it stands, which mid-edit is often invalid
+ * YAML; that is not an error, it just means nothing is filtered.
+ *
+ * @param string text
+ *   The document contents.
+ * @param string path
+ *   The property path, separated by slashes i.e. config/import.
+ * @returns Set<string>
+ *   The values present at that path, or an empty set.
+ */
+export function getExistingValues(text: string, path: string): Set<string> {
+  const values = new Set<string>();
+
+  if (path === '') {
+    return values;
+  }
+
+  let parsed: unknown;
+
+  try {
+    parsed = parseYaml(text);
+  } catch {
+    // A recipe being typed into is invalid more often than not.
+    return values;
+  }
+
+  let node: unknown = parsed;
+
+  for (const segment of path.split('/')) {
+    if (node === null || typeof node !== 'object' || Array.isArray(node)) {
+      return values;
+    }
+
+    node = (node as Record<string, unknown>)[segment];
+  }
+
+  // A sequence holds its entries; a mapping holds them as keys.
+  if (Array.isArray(node)) {
+    for (const entry of node) {
+      if (typeof entry === 'string') {
+        values.add(entry);
+      }
+    }
+  } else if (node !== null && typeof node === 'object') {
+    for (const key of Object.keys(node)) {
+      values.add(key);
+    }
+  }
+
+  return values;
+}
+
+/**
+ * The value a completion would insert, without the snippet that follows it.
+ *
+ * Insert texts carry the continuation a recipe author wants next, i.e.
+ * `node\n- ` or `node:\n  - `, so only the first line identifies the item.
+ *
+ * @param string insertText
+ *   The completion's insert text.
+ * @returns string
+ *   The value it would add to the recipe.
+ */
+export function getInsertedValue(insertText: string): string {
+  const [first] = insertText.split('\n');
+
+  return first
+    .trim()
+    .replace(/:$/, '')
+    .replace(/^['"]|['"]$/g, '');
 }

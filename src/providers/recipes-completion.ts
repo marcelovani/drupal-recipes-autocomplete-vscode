@@ -10,7 +10,12 @@ import {
 import DrupalWorkspaceProvider from '../base/drupal-workspace-provider';
 import suggestionsMapping from '../base/suggestions-mapping.json';
 import { functionMap } from '../base/suggestions-callbacks';
-import { getValueByPath, getPropertyPath } from '../utils/utils';
+import {
+  getValueByPath,
+  getPropertyPath,
+  getExistingValues,
+  getInsertedValue,
+} from '../utils/utils';
 import { YamlDiscovery } from '../base/drupal-workspace-yaml-discovery';
 import { cacheItem } from '../utils/cache';
 import { getIconKind } from '../utils/icons';
@@ -65,6 +70,12 @@ export default class RecipesCompletionProvider
     let propertyPath = getPropertyPath(document, position);
     console.debug(`Property path ${propertyPath}`);
 
+    // Where the cursor is in the recipe. propertyPath is about to be rewritten
+    // when the mapping points somewhere else, i.e. grantPermissions resolves to
+    // global/permissions, and what the recipe already holds lives under the
+    // path the author is actually typing at.
+    const documentPath = propertyPath;
+
     // Check if the property path matches any wildcard from suggestions-mapping.json.
     const value = getValueByPath(suggestionsMapping, propertyPath, '/');
     if (value !== false) {
@@ -97,6 +108,16 @@ export default class RecipesCompletionProvider
     cachedItems = cachedItems.filter((current, index, self) => {
       return index === self.findIndex((i) => i.item.completion.label === current.item.completion.label);
     });
+
+    // Don't offer what the recipe already has.
+    const existing = getExistingValues(document.getText(), documentPath);
+
+    if (existing.size > 0) {
+      cachedItems = cachedItems.filter(
+        (current) =>
+          !existing.has(getInsertedValue(current.item.completion.insertText))
+      );
+    }
 
     console.debug('Filtered options', cachedItems);
 
