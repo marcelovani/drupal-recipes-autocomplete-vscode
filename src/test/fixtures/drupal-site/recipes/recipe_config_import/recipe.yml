@@ -1,0 +1,6 @@
+name: 'Recipe Config Import'
+description: 'Exercises importing config by the module that provides it.'
+type: 'Site'
+config:
+  import:
+    recipe_test_module:

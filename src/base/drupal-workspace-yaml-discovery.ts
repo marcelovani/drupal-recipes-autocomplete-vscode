@@ -28,7 +28,10 @@ export class YamlDiscovery {
       '**/{vendor,node_modules}/**'
     );
 
-    // List of types that are not supported yet.
+    // Extension metadata files that are not config and have nothing to offer a
+    // recipe. `_action.yml` used to be here too, which excluded action config
+    // entities like system.action.node_delete_action.yml — config a recipe is
+    // meant to be able to import. See issue #6.
     const ignore: string[] = [
       '.libraries.yml',
       '.services.yml',
@@ -36,7 +39,6 @@ export class YamlDiscovery {
       '.breakpoints.yml',
       '.starterkit.yml',
       '.link_relation_types.yml',
-      '_action.yml',
       '.menu.yml',
       '/tests/',
       '/components/',
@@ -285,8 +287,20 @@ export class YamlDiscovery {
           );
 
           // Also add autocomplete for config/import/module_theme_name.
-          // @todo: This is not working correctly, we need to get the available configs in the module/config/install folder.
-          const name = configName.split('.')[0];
+          // A recipe imports config by naming the extension that ships it, not
+          // the prefix of the config itself: node's config/install holds
+          // system.action.node_delete_action.yml, which belongs under
+          // config/import/node. Take the name from the directory above
+          // config/install rather than from the config name.
+          const provider = filePath.match(
+            /\/([^/]+)\/config\/install\/[^/]+\.yml$/
+          );
+
+          if (provider === null) {
+            break;
+          }
+
+          const name = provider[1];
           this.storeCompletionItem(
             `config/import/${name}`,
             filePath,

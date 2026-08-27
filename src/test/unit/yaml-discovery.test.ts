@@ -33,6 +33,16 @@ describe('YamlDiscovery.detectFileType', () => {
     ).toBe(false);
   });
 
+  it('detects an action config entity as config', () => {
+    // These live in a module's config/install and are importable by a recipe.
+    // They were excluded by an `_action.yml` entry in the ignore list. Issue #6.
+    expect(
+      discovery.detectFileType(
+        '/site/web/core/modules/node/config/install/system.action.node_delete_action.yml'
+      )
+    ).toBe('config');
+  });
+
   it('returns false for a file that matches nothing', () => {
     expect(discovery.detectFileType('/site/web/sites/default/services.yml')).toBe(
       false
@@ -154,6 +164,34 @@ describe('YamlDiscovery.processCompletionItem', () => {
     );
 
     expect(labelsAt('global/permissions')).toEqual(['Administer foo (Permission)']);
+  });
+
+  it('keys config/import on the module that provides the config, not its prefix', () => {
+    // node's config/install holds system.action.node_delete_action.yml, which a
+    // recipe imports by naming the node module. Keying on the config prefix
+    // files it under system, where nothing looks for it. Issue #6.
+    discovery.processCompletionItem(
+      'config',
+      Uri.file(
+        '/site/web/modules/contrib/foo/config/install/system.action.foo_action.yml'
+      ),
+      { langcode: 'en' }
+    );
+
+    expect(labelsAt('config/import/foo')).toEqual([
+      'system.action.foo_action (CONFIG)',
+    ]);
+    expect(labelsAt('config/import/system')).toEqual([]);
+  });
+
+  it('still keys config/import on the module when the prefix matches it', () => {
+    discovery.processCompletionItem(
+      'config',
+      Uri.file('/site/web/modules/contrib/foo/config/install/foo.settings.yml'),
+      { langcode: 'en' }
+    );
+
+    expect(labelsAt('config/import/foo')).toEqual(['foo.settings (CONFIG)']);
   });
 
   it('stores nothing when the path does not match the expected shape', () => {
