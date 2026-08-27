@@ -1,0 +1,5 @@
+name: Recipe Test Module
+type: module
+description: 'A module the completion provider should offer under install and config/import.'
+package: Testing
+core_version_requirement: ^11

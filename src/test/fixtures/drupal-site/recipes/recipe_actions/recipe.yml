@@ -1,0 +1,9 @@
+name: 'Recipe Actions'
+description: 'Exercises the config action suggestion paths.'
+type: 'Site'
+config:
+  actions:
+    user.role.editor:
+      grantPermissions:
+    recipe_test_module.settings:
+      simpleConfigUpdate:

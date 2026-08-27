@@ -1,0 +1,5 @@
+name: Recipe Test Theme
+type: theme
+description: 'A theme the completion provider should offer under install.'
+base theme: stark
+core_version_requirement: ^11

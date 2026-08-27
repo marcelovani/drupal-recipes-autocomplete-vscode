@@ -32,7 +32,7 @@ export default [
             sourceType: "module",
 
             parserOptions: {
-                project: "./tsconfig.json",
+                project: ["./tsconfig.json", "./tsconfig.unit.json"],
             },
         },
 

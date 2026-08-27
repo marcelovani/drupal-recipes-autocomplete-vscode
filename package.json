@@ -66,7 +66,12 @@
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint 'src/**/*.{ts,tsx}'",
-    "test": "rm -rf .vscode-test/user-da*; NODE_OPTIONS='--no-warnings' vscode-test"
+    "test": "npm run test:unit && npm run test:integration",
+    "typecheck": "tsc -p . --noEmit && tsc -p tsconfig.unit.json",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "NODE_OPTIONS='--no-warnings' vscode-test"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
@@ -76,13 +81,14 @@
     "@types/vscode": "^1.95.0",
     "@typescript-eslint/eslint-plugin": "^8.13.0",
     "@typescript-eslint/parser": "^8.13.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
+    "@vscode/test-cli": "^0.0.15",
+    "@vscode/test-electron": "^3.1.0",
     "eslint": "^9.14.0",
     "globals": "^15.12.0",
     "schemastore.org": "git+https://github.com/SchemaStore/schemastore.git",
     "ts-loader": "^9.5.1",
     "typescript": "^5.6.3",
+    "vitest": "^4.1.11",
     "vsce": "^2.15.0",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4"

@@ -1,0 +1,8 @@
+{
+  "name": "drupal/recipe-autocomplete-fixture",
+  "description": "Minimal Drupal-shaped workspace used by the extension tests.",
+  "type": "project",
+  "require": {
+    "drupal/core-recommended": "^11"
+  }
+}

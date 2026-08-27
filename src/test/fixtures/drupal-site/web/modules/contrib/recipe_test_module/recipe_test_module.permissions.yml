@@ -1,0 +1,5 @@
+administer recipe test:
+  title: 'Administer recipe test'
+  description: 'Permission the completion provider should offer under grantPermission.'
+view recipe test:
+  title: 'View recipe test'
