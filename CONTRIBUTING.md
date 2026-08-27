@@ -19,12 +19,14 @@ You may need to fork the repo for Json Schemas, please see these lines on packag
         ],
         "url": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/drupal-recipe.json",
         "$fork": "https://raw.githubusercontent.com/marcelovani/schemastore/refs/heads/drupal-recipes/src/schemas/json/drupal-recipe.json",
-        "$local": "file:///Users/marcelo.vani/Development/Projects/Recipes/schemastore/src/schemas/json/drupal-recipe.json"
+        "$url": "file:///path/to/your/schemastore/src/schemas/json/drupal-recipe.json"
       }
     ],
 ```
 
-The key `url` is what is going to be used for the autocomplete of contextual items and validation. You can use the url from `$fork` or `$local` by copying the url onto the `url` item. Please don't commit this change, this is used only for development purposes.
+The key `url` is what is going to be used for the autocomplete of contextual items and validation. You can use the url from `$fork` or `$url` by copying the url onto the `url` item. Please don't commit this change, this is used only for development purposes.
+
+To work against a local schema, clone SchemaStore somewhere of your own and point `$url` at that checkout. It is not an npm dependency of this project, so nothing pulls it in for you.
 
 ### Running the tests
 
