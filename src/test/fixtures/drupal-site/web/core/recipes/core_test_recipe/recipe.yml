@@ -1,0 +1,5 @@
+name: 'Core Test Recipe'
+description: 'A recipe the completion provider should offer under recipes.'
+type: 'Content type'
+install:
+  - node

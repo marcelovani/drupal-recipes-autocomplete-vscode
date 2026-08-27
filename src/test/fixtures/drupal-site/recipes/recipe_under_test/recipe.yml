@@ -1,0 +1,8 @@
+name: 'Recipe Under Test'
+description: 'The recipe the integration tests open and request completions in.'
+type: 'Site'
+recipes:
+install:
+config:
+  import:
+  actions:

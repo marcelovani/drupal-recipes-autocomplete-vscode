@@ -62,7 +62,7 @@ export default class RecipesCompletionProvider
       return [];
     }
 
-    let propertyPath = getPropertyPath(position);
+    let propertyPath = getPropertyPath(document, position);
     console.debug(`Property path ${propertyPath}`);
 
     // Check if the property path matches any wildcard from suggestions-mapping.json.

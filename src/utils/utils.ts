@@ -1,7 +1,21 @@
-import {
-  Position,
-  window,
-} from 'vscode';
+/**
+ * The slice of TextDocument that getPropertyPath reads.
+ *
+ * Declared structurally so the walk can be exercised without a VS Code host.
+ * A vscode.TextDocument satisfies it as-is.
+ */
+export interface TextLineSource {
+  lineAt(line: number): { text: string };
+}
+
+/**
+ * The slice of Position that getPropertyPath reads.
+ * A vscode.Position satisfies it as-is.
+ */
+export interface CursorPosition {
+  line: number;
+  character: number;
+}
 
 /**
  * Flattens a nested object into a single-depth object, example the object:
@@ -105,12 +119,17 @@ export function getValueByPath(
    *       placeBlockInDefaultTheme:
    *         id: <- This is the item to autocomplete
    *
-   * @param Position position
+   * @param TextLineSource document
+   *   The document being completed in.
+   * @param CursorPosition position
    *   The cursor position.
    * @returns string
    *   The parent attribute.
    */
-export function getPropertyPath(position: Position): string {
+export function getPropertyPath(
+  document: TextLineSource,
+  position: CursorPosition
+): string {
   if (position.character === 0) {
     return '';
   }
@@ -124,7 +143,13 @@ export function getPropertyPath(position: Position): string {
   let propertyCol = 0;
 
   do {
-    const attribute = window.activeTextEditor?.document.lineAt(line);
+    // Walking up from an entirely indented document runs off the top of the
+    // file, and TextDocument.lineAt throws on an out-of-range line.
+    if (line < 0) {
+      break;
+    }
+
+    const attribute = document.lineAt(line);
 
     const text = attribute?.text !== undefined ? attribute?.text : '';
 

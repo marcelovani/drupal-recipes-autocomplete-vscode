@@ -15,5 +15,5 @@
     "types": ["node", "vscode", "mocha"]
   },
   "include": ["src"],
-  "exclude": ["node_modules", "out", ".vscode-test"]
+  "exclude": ["node_modules", "out", ".vscode-test", "src/test/unit"]
 }

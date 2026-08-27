@@ -26,9 +26,19 @@ You may need to fork the repo for Json Schemas, please see these lines on packag
 
 The key `url` is what is going to be used for the autocomplete of contextual items and validation. You can use the url from `$fork` or `$local` by copying the url onto the `url` item. Please don't commit this change, this is used only for development purposes.
 
+### Running the tests
+
+```bash
+npm install
+npm test
+```
+
+That runs the unit tests and then the integration tests. See [docs/testing.md](docs/testing.md)
+for what each layer covers and how to add to the fixture workspace.
+
 ### Testing it locally
 
-Unit tests are not fully working, but you can debug and test it manually.
+You can also debug and test it by hand.
 
 1. Click menu Run > Start debugging.
 2. You may see a prompt to ask you to run NPM Watch, you can confirm. Watch is used to compile the code, so that it can be debugged.

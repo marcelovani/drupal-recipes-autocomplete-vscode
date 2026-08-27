@@ -25,3 +25,6 @@ vsc-extension-quickstart.md
 !LICENSE.md
 !docs
 
+
+# Tests are compiled into out/ but must not ship in the extension.
+out/test/**
