@@ -4,3 +4,7 @@ node_modules
 .vscode-test/
 *.vsix
 coverage
+
+# The test fixture deliberately holds a node_modules directory: the scan has to
+# be proven to skip it, which needs it committed.
+!src/test/fixtures/drupal-site/node_modules/

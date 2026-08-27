@@ -20,9 +20,12 @@ export class YamlDiscovery {
    * stores the items in cache, adds the items to the autocomplete list.
    */
   async parseYamlFiles(): Promise<void> {
+    // Matched at any depth: a theme or a package can carry its own
+    // node_modules. The space that used to sit after the comma made the second
+    // alternative " node_modules", which matched nothing.
     const files = await this.drupalWorkspace.findFiles(
       '**/*.yml',
-      '{vendor, node_modules}'
+      '**/{vendor,node_modules}/**'
     );
 
     // List of types that are not supported yet.

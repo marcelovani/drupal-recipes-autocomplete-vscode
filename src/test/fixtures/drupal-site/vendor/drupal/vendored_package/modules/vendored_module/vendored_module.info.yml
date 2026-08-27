@@ -1,0 +1,4 @@
+name: Vendored Module
+type: module
+description: 'Installed by Composer under vendor/ and must never be suggested.'
+core_version_requirement: ^11
