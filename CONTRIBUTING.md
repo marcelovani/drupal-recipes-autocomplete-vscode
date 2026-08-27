@@ -36,6 +36,12 @@ npm test
 That runs the unit tests and then the integration tests. See [docs/testing.md](docs/testing.md)
 for what each layer covers and how to add to the fixture workspace.
 
+### Keeping up with Drupal
+
+Drupal keeps adding config actions. [docs/tracking-drupal-recipes.md](docs/tracking-drupal-recipes.md)
+explains how to find what has been added since the last release, which of the two
+mechanisms a gap belongs to, and how the coverage test stops it drifting again.
+
 ### Testing it locally
 
 You can also debug and test it by hand.
