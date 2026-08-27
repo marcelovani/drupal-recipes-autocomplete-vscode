@@ -71,7 +71,8 @@
     "test:unit": "vitest run",
     "test:unit:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:integration": "NODE_OPTIONS='--no-warnings' vscode-test"
+    "test:integration": "NODE_OPTIONS='--no-warnings' vscode-test",
+    "verify:package": "node scripts/check-package-contents.mjs"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.6",

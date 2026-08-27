@@ -18,6 +18,10 @@ jobs:
       - run: npm run compile
       - name: Type check
         run: npm run typecheck
+      # .vscodeignore is easy to get wrong in a way nothing else notices until
+      # it is published.
+      - name: Check what would be packaged
+        run: npm run verify:package
 
   lint:
     name: Lint
