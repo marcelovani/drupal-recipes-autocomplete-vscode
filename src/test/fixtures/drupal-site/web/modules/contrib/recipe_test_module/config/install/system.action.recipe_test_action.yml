@@ -1,0 +1,6 @@
+langcode: en
+status: true
+id: recipe_test_action
+label: 'Recipe test action'
+type: node
+plugin: node_delete_action

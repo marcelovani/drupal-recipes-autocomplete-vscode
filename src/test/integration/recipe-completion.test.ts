@@ -5,6 +5,7 @@ import { activateExtension, completionLabelsAt, completionsAt } from './helpers'
 const RECIPE = 'recipes/recipe_under_test/recipe.yml';
 const ACTIONS = 'recipes/recipe_actions/recipe.yml';
 const EXISTING = 'recipes/recipe_existing_items/recipe.yml';
+const IMPORT = 'recipes/recipe_config_import/recipe.yml';
 
 suite('Recipe completions', () => {
   suiteSetup(async () => {
@@ -89,6 +90,15 @@ suite('Recipe completions', () => {
       !labels.includes('Recipe Test Module (MODULE)'),
       'recipe_test_module is already installed by this recipe.'
     );
+  });
+
+  test('config/import/<module> offers the config that module ships', async () => {
+    // node ships system.action.node_delete_action.yml in its own config/install,
+    // so a recipe importing node has to be offered it. Issue #6.
+    await completionLabelsAt(IMPORT, new vscode.Position(5, 24), [
+      'system.action.recipe_test_action (CONFIG)',
+      'recipe_test_module.settings (CONFIG)',
+    ]);
   });
 
   test('does not offer recipe suggestions outside a recipe file', async () => {
