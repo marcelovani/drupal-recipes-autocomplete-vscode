@@ -41,6 +41,10 @@ fills in shortly after activation. `completionLabelsAt()` in
 `src/test/integration/helpers.ts` polls until the expected suggestions appear
 rather than sleeping for a fixed period.
 
+The `yamlValidation` assertion checks the contribution is registered, not that the
+schema itself is correct — that lives on SchemaStore and has its own tests. See
+[json-schema.md](./json-schema.md).
+
 ## Fixture workspace
 
 `src/test/fixtures/drupal-site/` is a Drupal-shaped tree, a few kilobytes in

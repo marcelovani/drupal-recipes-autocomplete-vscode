@@ -8,25 +8,12 @@ You can start by searching if there is already an issue in the (project page)[ht
 2. Push the changes to your fork
 3. Create a pull request and link to the issue
 
-You may need to fork the repo for Json Schemas, please see these lines on package.json
-
-```
-"yamlValidation": [
-      {
-        "fileMatch": [
-          "recipe.yml",
-          "recipe.yaml"
-        ],
-        "url": "https://raw.githubusercontent.com/SchemaStore/schemastore/refs/heads/master/src/schemas/json/drupal-recipe.json",
-        "$fork": "https://raw.githubusercontent.com/marcelovani/schemastore/refs/heads/drupal-recipes/src/schemas/json/drupal-recipe.json",
-        "$url": "file:///path/to/your/schemastore/src/schemas/json/drupal-recipe.json"
-      }
-    ],
-```
-
-The key `url` is what is going to be used for the autocomplete of contextual items and validation. You can use the url from `$fork` or `$url` by copying the url onto the `url` item. Please don't commit this change, this is used only for development purposes.
-
-To work against a local schema, clone SchemaStore somewhere of your own and point `$url` at that checkout. It is not an npm dependency of this project, so nothing pulls it in for you.
+The key names in `recipe.yml` come from a JSON schema on SchemaStore rather than
+from this codebase, so a missing key is often a change to make there instead of here.
+[docs/json-schema.md](docs/json-schema.md) explains how the two halves fit together,
+how to develop against a fork of the schema, and the history of the
+[pull request](https://github.com/SchemaStore/schemastore/pull/4187) that the extension
+was built on.
 
 ### Running the tests
 

@@ -6,7 +6,8 @@ VS Code extension that provides autocomplete for Drupal Recipes
 ## Features
 
 - Provides autocomplete suggestions for Drupal recipes.
-- Provides validation for recipe.yml.
+- Provides validation for recipe.yml, via the [Drupal recipe JSON schema](https://github.com/SchemaStore/schemastore/blob/master/src/schemas/json/drupal-recipe.json)
+  on SchemaStore — see [docs/json-schema.md](./docs/json-schema.md).
 - See the list of [supported Config actions](https://github.com/marcelovani/drupal-recipes-autocomplete-vscode/wiki/Properties)
 
 ## Instructions
