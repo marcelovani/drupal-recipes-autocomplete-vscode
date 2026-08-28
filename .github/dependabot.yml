@@ -6,6 +6,18 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # ts-loader cannot load TypeScript 7: the webpack build dies with
+      # "Cannot read properties of undefined (reading 'fileExists')". Revisit
+      # when ts-loader supports it. See #18.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
+      # Pinned to the floor that engines.vscode advertises, so the compiler
+      # enforces the compatibility the extension claims. Letting this float
+      # is what #18 fixed; raising it is a deliberate decision about which
+      # VS Code versions to drop, not a dependency bump.
+      - dependency-name: "@types/vscode"
     groups:
       # Routine bumps arrive as one PR that can be merged on the strength of CI.
       npm-minor-and-patch:
