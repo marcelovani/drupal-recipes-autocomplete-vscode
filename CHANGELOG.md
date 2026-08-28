@@ -1,3 +1,22 @@
+## 1.1.2 (2026-08-28)
+
+ Bug fixes
+  - Fixed node_modules being scanned for suggestions, which was slow on projects with a frontend build and offered npm packages as if they were Drupal modules (#16)
+  - Fixed config/import not offering the config a module actually ships, such as system.action.node_delete_action.yml under node (#6)
+  - Fixed config suggestions showing no icon (#17)
+  - Stopped the published extension carrying its own test files and source maps, cutting the download from 40 files to 8 (#24)
+
+ New functionalities
+ - Suggestions no longer include items the recipe already has, for modules, recipes, config imports and permissions alike (#4)
+
+ Under the hood
+ - Added unit and integration test suites, and fixed the test runner, which could not launch current VS Code at all (#5)
+ - Added a generated list of the config actions Drupal core exposes, with a test that fails when core adds one we have not classified (#29)
+ - Pinned @types/vscode to the version engines.vscode advertises, so the compiler enforces the compatibility the extension claims (#18)
+ - Updated dependencies, taking npm audit from 26 findings to 4, and enabled Dependabot (#18, #15)
+ - Removed a 93MB dependency that nothing imported (#30)
+ - Documented the JSON schema the extension depends on, and how to keep up with Drupal's config actions
+
 ## 1.1.1 (2024-11-13)
 
  Bug fixes
