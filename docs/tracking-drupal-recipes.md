@@ -21,6 +21,8 @@ codebase in the workspace. Only actions whose *values* are worth completing from
 the codebase need an entry.
 
 So "action X is missing" splits into two different jobs, in two repositories.
+[json-schema.md](./json-schema.md) covers the schema half — how it is wired, how to
+develop against a fork, and how to contribute a change upstream.
 
 ## Source first, documentation second
 
