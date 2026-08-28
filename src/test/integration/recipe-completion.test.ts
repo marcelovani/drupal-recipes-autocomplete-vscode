@@ -4,6 +4,7 @@ import { activateExtension, completionLabelsAt, completionsAt } from './helpers'
 
 const RECIPE = 'recipes/recipe_under_test/recipe.yml';
 const ACTIONS = 'recipes/recipe_actions/recipe.yml';
+const DYNAMIC = 'recipes/recipe_dynamic/recipe.yml';
 const EXISTING = 'recipes/recipe_existing_items/recipe.yml';
 const IMPORT = 'recipes/recipe_config_import/recipe.yml';
 
@@ -98,6 +99,23 @@ suite('Recipe completions', () => {
     await completionLabelsAt(IMPORT, new vscode.Position(5, 24), [
       'system.action.recipe_test_action (CONFIG)',
       'recipe_test_module.settings (CONFIG)',
+    ]);
+  });
+
+  test('hideComponent offers the components of that display', async () => {
+    // Issue #7: the callback reads the display's own config off disk.
+    await completionLabelsAt(DYNAMIC, new vscode.Position(6, 20), [
+      'body',
+      'links',
+      'langcode',
+    ]);
+  });
+
+  test('setRegion offers the regions the themes declare', async () => {
+    await completionLabelsAt(DYNAMIC, new vscode.Position(8, 16), [
+      'header',
+      'content',
+      'footer',
     ]);
   });
 

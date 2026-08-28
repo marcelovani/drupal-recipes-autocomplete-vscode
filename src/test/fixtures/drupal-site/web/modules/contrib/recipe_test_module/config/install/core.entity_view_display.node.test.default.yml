@@ -1,0 +1,14 @@
+langcode: en
+status: true
+id: node.test.default
+targetEntityType: node
+bundle: test
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+  links:
+    settings: {}
+hidden:
+  langcode: true
