@@ -1,0 +1,5 @@
+langcode: en
+status: true
+id: test_image
+label: 'Test image'
+source: image

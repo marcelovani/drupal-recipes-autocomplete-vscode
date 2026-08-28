@@ -1,6 +1,5 @@
 {
-  "comment": "Says what the extension does about each config action in core-config-actions.json. Every core action must appear either in suggestions-mapping.json, in staticOnly, or in pending — the coverage test fails otherwise, which is how a new core action gets noticed. See docs/tracking-drupal-recipes.md.",
-
+  "comment": "Says what the extension does about each config action in core-config-actions.json. Every core action must appear either in suggestions-mapping.json, in staticOnly, or in pending \u2014 the coverage test fails otherwise, which is how a new core action gets noticed. See docs/tracking-drupal-recipes.md.",
   "staticOnlyComment": "Takes a scalar, a boolean or free text. The JSON schema already completes the action name, and there is nothing in the Drupal codebase worth suggesting for the value, so no mapping entry is wanted.",
   "staticOnly": [
     "allowLayoutOverrides",
@@ -23,7 +22,6 @@
     "setTranslatable",
     "setWeight"
   ],
-
   "pendingComment": "Would be more useful with values read out of the Drupal codebase, but has no mapping entry yet. This is the backlog for issue #29, and several of them need a callback that issue #7 has still to write.",
   "pending": {
     "addComponentToLayout": "Needs the components available in the layout.",
@@ -43,19 +41,13 @@
     "setProperties": "Takes arbitrary config properties; getConfigItems already does this for set.",
     "setSettings": "Needs the settings keys of the plugin being configured."
   },
-
-  "callbacksComment": "Callbacks named by suggestions-mapping.json that suggestions-callbacks.ts does not implement. The provider falls back to notImplementedYet for these, so the editor shows a placeholder rather than a suggestion. Tracked by issue #7; the coverage test fails if a name appears here that is now implemented, so the list shrinks as they land.",
+  "callbacksComment": "Callbacks named by suggestions-mapping.json that suggestions-callbacks.ts does not implement. The provider falls back to notImplementedYet for these, so the editor shows a placeholder rather than a suggestion. Tracked by issue #7; the coverage test fails if a name appears here that is now implemented, so the list shrinks as they land. The four left need data that is not in YAML: block plugin ids come from PHP attributes, and createForEach takes a config template keyed by bundle rather than a list of values.",
   "unimplementedCallbacks": [
     "createForEach",
     "createForEachIfNotExists",
     "getBlockIds",
-    "getComponentNames",
-    "getMediaTypes",
-    "getPluginName",
-    "getRegionNames",
-    "getVocabularies"
+    "getPluginName"
   ],
-
   "refTargetsComment": "Cache keys that a ref: in suggestions-mapping.json is allowed to point at. YamlDiscovery.processCompletionItem writes these.",
   "refTargets": [
     "global/permissions",

@@ -3,3 +3,7 @@ type: theme
 description: 'A theme the completion provider should offer under install.'
 base theme: stark
 core_version_requirement: ^11
+regions:
+  header: Header
+  content: Content
+  footer: Footer

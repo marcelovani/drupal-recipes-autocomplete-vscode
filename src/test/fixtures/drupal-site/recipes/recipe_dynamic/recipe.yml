@@ -1,0 +1,9 @@
+name: 'Recipe Dynamic'
+description: 'Exercises the dynamic value callbacks.'
+type: 'Site'
+config:
+  actions:
+    core.entity_view_display.node.test.default:
+      hideComponent:
+    block.block.test:
+      setRegion:

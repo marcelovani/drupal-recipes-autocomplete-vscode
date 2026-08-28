@@ -32,8 +32,12 @@ function contextWith(cache: Map<string, cacheItem[]>) {
 describe('functionMap', () => {
   it('exposes the callbacks named in suggestions-mapping.json', () => {
     expect(Object.keys(functionMap).sort()).toEqual([
+      'getComponentNames',
       'getConfigContents',
       'getConfigItems',
+      'getMediaTypes',
+      'getRegionNames',
+      'getVocabularies',
       'notImplementedYet',
     ]);
   });
