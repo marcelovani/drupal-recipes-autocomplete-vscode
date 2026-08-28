@@ -43,42 +43,14 @@ You can also debug and test it by hand.
 
 ### Releasing
 
-Releases are published by `.github/workflows/publish.yml` when a version tag is
-pushed. It runs the whole suite, checks the tag matches `package.json`, then
-publishes to the Visual Studio Marketplace **and** Open VSX, and creates the
-GitHub release with the changelog entry attached.
+A release is a pushed tag: `.github/workflows/publish.yml` runs the suite, checks
+the tag matches `package.json`, and publishes to the Visual Studio Marketplace and
+Open VSX before creating the GitHub release.
 
-1. Add the entry to `CHANGELOG.md` and set the matching version in `package.json`.
-2. Merge that to `main`.
-3. Tag and push:
-
-   ```bash
-   git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3
-   ```
-
-Two repository secrets are needed:
-
-| Secret | For | Where from |
-| --- | --- | --- |
-| `VSCE_PAT` | Visual Studio Marketplace | Azure DevOps personal access token, Marketplace > Manage |
-| `OVSX_PAT` | Open VSX | open-vsx.org, after claiming the `marcelovani` namespace |
-
-Open VSX is what the VS Code forks install from — Windsurf, Devin, VSCodium,
-code-server — since they cannot use the Microsoft marketplace. Publishing there
-fails soft, so a missing token holds up nobody else's install.
-
-Use the workflow's manual run (`workflow_dispatch`) with **dry run** left on to
-build and check a release without publishing anything.
-
-### Packaging and deploying by hand
-Add entry in the Changelog with version number/date and list of changes.
-Update the version in package.json to match the version in the Changelog.
-
-To package you need to using:
 ```bash
-npm run package
-npm run publish
+git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3
 ```
 
-See more details in the (VS Code documentation)[https://code.visualstudio.com/api/working-with-extensions/publishing-extension]
-
+[docs/releasing.md](docs/releasing.md) has the whole of it, including how to create
+the `VSCE_PAT` and `OVSX_PAT` secrets — both have a step that is easy to get wrong
+and gives an unhelpful error — and how to do a dry run that publishes nothing.
