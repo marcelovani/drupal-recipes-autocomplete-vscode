@@ -4,6 +4,7 @@ import { activateExtension, completionLabelsAt, completionsAt } from './helpers'
 
 const RECIPE = 'recipes/recipe_under_test/recipe.yml';
 const ACTIONS = 'recipes/recipe_actions/recipe.yml';
+const EXISTING = 'recipes/recipe_existing_items/recipe.yml';
 
 suite('Recipe completions', () => {
   suiteSetup(async () => {
@@ -73,6 +74,21 @@ suite('Recipe completions', () => {
     ]);
 
     assert.ok(labels.length > 0);
+  });
+
+  test('does not offer a module the recipe already installs', async () => {
+    // recipe_existing_items already lists recipe_test_module under install.
+    // Issue #4.
+    const labels = await completionLabelsAt(
+      EXISTING,
+      new vscode.Position(5, 4),
+      ['Recipe Test Theme (THEME)']
+    );
+
+    assert.ok(
+      !labels.includes('Recipe Test Module (MODULE)'),
+      'recipe_test_module is already installed by this recipe.'
+    );
   });
 
   test('does not offer recipe suggestions outside a recipe file', async () => {

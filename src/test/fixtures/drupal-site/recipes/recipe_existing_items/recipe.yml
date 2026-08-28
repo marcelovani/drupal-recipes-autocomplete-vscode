@@ -1,0 +1,6 @@
+name: 'Recipe Existing Items'
+description: 'Already lists one of the modules the codebase offers.'
+type: 'Site'
+install:
+  - recipe_test_module
+  - 
