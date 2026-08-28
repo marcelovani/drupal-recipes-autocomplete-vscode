@@ -84,3 +84,14 @@ Then open a `recipe.yml` in that codebase and press `Ctrl+Space`.
 `.github/workflows/pr-checks.yml` runs build, lint, unit and integration as
 separate jobs. The integration job wraps the run in `xvfb-run` because the
 extension host needs a display and the runners are headless.
+
+## What gets published
+
+`npm run verify:package` asks vsce what the `.vsix` would contain and fails if
+the answer includes compiled tests, source maps, TypeScript sources or the test
+fixtures — or is missing `out/extension.js`. The build job runs it.
+
+`.vscodeignore` needs the care: vsce keeps a file that matches no ignore pattern
+**or** matches any negation, so a broad negation like `!out/**/*` overrides every
+ignore in the file regardless of order. The negations have to be narrow, because
+nothing after them can take anything back.

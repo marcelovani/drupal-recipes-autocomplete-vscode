@@ -1,3 +1,9 @@
+# vsce does not resolve this file the way .gitignore does. It splits the
+# patterns into ignores and negations, then keeps a file that matches no ignore
+# OR matches any negation — so a negation wins over every ignore in the file,
+# whatever the order. That means the negations below have to be narrow, because
+# nothing after them can take anything back.
+
 .vscode/**
 .vscode-test/**
 out/**
@@ -17,14 +23,12 @@ vsc-extension-quickstart.md
 *
 */**
 
-# Excludes
-!out/**/*
+# Excludes. out/ also holds the compiled tests and the source maps, so only the
+# webpack bundle is named here; it already has the sources and
+# suggestions-mapping.json compiled into it.
+!out/extension.js
 !assets/**/*
 !package.json
 !README.md
 !LICENSE.md
 !docs
-
-
-# Tests are compiled into out/ but must not ship in the extension.
-out/test/**
