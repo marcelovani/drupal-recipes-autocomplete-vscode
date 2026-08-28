@@ -41,7 +41,36 @@ You can also debug and test it by hand.
 4. Once the new window opens, you can open an existing Drupal codebase and edit an existing recipe.yml file or create a new one.
 5. You can now test the autocomplete suggestions and recipe validations.
 
-### Packaging and deploying
+### Releasing
+
+Releases are published by `.github/workflows/publish.yml` when a version tag is
+pushed. It runs the whole suite, checks the tag matches `package.json`, then
+publishes to the Visual Studio Marketplace **and** Open VSX, and creates the
+GitHub release with the changelog entry attached.
+
+1. Add the entry to `CHANGELOG.md` and set the matching version in `package.json`.
+2. Merge that to `main`.
+3. Tag and push:
+
+   ```bash
+   git tag -a v1.2.3 -m v1.2.3 && git push origin v1.2.3
+   ```
+
+Two repository secrets are needed:
+
+| Secret | For | Where from |
+| --- | --- | --- |
+| `VSCE_PAT` | Visual Studio Marketplace | Azure DevOps personal access token, Marketplace > Manage |
+| `OVSX_PAT` | Open VSX | open-vsx.org, after claiming the `marcelovani` namespace |
+
+Open VSX is what the VS Code forks install from — Windsurf, Devin, VSCodium,
+code-server — since they cannot use the Microsoft marketplace. Publishing there
+fails soft, so a missing token holds up nobody else's install.
+
+Use the workflow's manual run (`workflow_dispatch`) with **dry run** left on to
+build and check a release without publishing anything.
+
+### Packaging and deploying by hand
 Add entry in the Changelog with version number/date and list of changes.
 Update the version in package.json to match the version in the Changelog.
 
