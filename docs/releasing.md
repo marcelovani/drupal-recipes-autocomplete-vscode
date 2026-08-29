@@ -107,6 +107,22 @@ step with a 401, an expired token is the first thing to check.
 gh secret set OVSX_PAT --repo marcelovani/drupal-recipes-autocomplete-vscode
 ```
 
+## A version is published once
+
+Every release is a new version and a new tag. A tag that has been pushed is
+never moved or re-pushed, and a version that has been published is never
+republished.
+
+That matters because the two registries can end up out of step — 1.1.2 reached
+the marketplace and not Open VSX, because there was no token for the second one
+at the time. The fix for that is not to republish the version; it is to fix
+whatever was wrong and let the next version carry it to both. The marketplace
+refuses a duplicate version anyway, so a re-pushed tag would fail on that step
+before reaching Open VSX.
+
+A registry can therefore be one version behind for a while. That is a normal
+state, not a broken one.
+
 ## Trying it without publishing
 
 The workflow has a manual trigger with a dry run option, on by default:
