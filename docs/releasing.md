@@ -81,6 +81,13 @@ Then:
 gh secret set VSCE_PAT --repo marcelovani/drupal-recipes-autocomplete-vscode
 ```
 
+The token then appears to vanish. The list on that page has an **Access scope**
+filter that defaults to a single organization, and the token you just made is a
+global one — so the default view is the one view that cannot show it. Set the
+filter to **All accessible organizations** and it is there. Nothing has gone
+wrong; the only scope that works for publishing is the one the default filter
+hides.
+
 Tokens expire — a year is the maximum. When a release fails on the marketplace
 step with a 401, an expired token is the first thing to check.
 
