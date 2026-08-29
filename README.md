@@ -24,7 +24,8 @@ VS Code extension that provides autocomplete for Drupal Recipes
 Contributions are more than welcome! Read [CONTRIBUTING.md](./CONTRIBUTING.md) for more information,
 and [docs/testing.md](./docs/testing.md) for how to run the tests.
 [docs/tracking-drupal-recipes.md](./docs/tracking-drupal-recipes.md) covers how support for new
-Drupal config actions gets tracked and ported.
+Drupal config actions gets tracked and ported, and [docs/releasing.md](./docs/releasing.md)
+covers publishing.
 
 ## Repository
 https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
