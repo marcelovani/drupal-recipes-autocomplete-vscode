@@ -1,3 +1,13 @@
+## 1.1.3 (2026-08-29)
+
+ New functionalities
+ - The extension is now published to Open VSX as well as the Visual Studio Marketplace, so it can be installed in VS Code forks such as Windsurf, Devin, VSCodium and code-server (#19)
+
+ Under the hood
+ - Added THIRD-PARTY-NOTICES.md carrying the notice for the yaml package bundled into the extension, and a copyright line for the work since this project began as a branch of kaermorchen/vscode-drupal, so the attribution matches what actually ships
+ - README now states the licence, which it never did
+ - A release that reaches one registry and not the other fails visibly instead of reporting success
+
 ## 1.1.2 (2026-08-28)
 
  Bug fixes
