@@ -36,3 +36,15 @@ https://github.com/marcelovani/drupal-recipes-autocomplete-vscode
 - Support Default Content
 - Do not show autocomplete items that are already in the Recipe
 - Fix Lint warnings
+
+## License
+
+MIT — see [LICENSE.md](./LICENSE.md). Free to use, modify and redistribute,
+provided as is and without warranty of any kind.
+
+This extension began as part of the
+[Drupal extension for VS Code](https://github.com/kaermorchen/vscode-drupal),
+also MIT, whose copyright notice is kept alongside ours.
+[THIRD-PARTY-NOTICES.md](./THIRD-PARTY-NOTICES.md) covers the code bundled into
+the published extension.
+
