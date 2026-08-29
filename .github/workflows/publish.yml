@@ -70,12 +70,20 @@ jobs:
         env:
           VSCE_PAT: ${{ secrets.VSCE_PAT }}
 
-      # Never blocks the marketplace publish: a missing Open VSX namespace or
-      # token should not hold up the release everyone else installs from.
+      # Fails the run rather than passing quietly. continue-on-error was worse
+      # than useless here: it sets the step's conclusion to success while the
+      # outcome is a failure, so the 1.1.2 release showed a green tick for a
+      # step that had died on a missing token, and the only evidence was in the
+      # logs. A release that reached one registry and not the other must be
+      # obvious.
       - name: Publish to Open VSX
         if: startsWith(github.ref, 'refs/tags/') && !inputs.dry_run
-        continue-on-error: true
-        run: npx ovsx publish drupal-recipes-autocomplete-vscode.vsix
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "::error::OVSX_PAT is not set, so Open VSX was not published. See docs/releasing.md."
+            exit 1
+          fi
+          npx ovsx publish drupal-recipes-autocomplete-vscode.vsix
         env:
           OVSX_PAT: ${{ secrets.OVSX_PAT }}
 
