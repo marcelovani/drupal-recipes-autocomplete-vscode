@@ -44,20 +44,38 @@ the run afterwards rather than assuming both succeeded.
 
 ## Creating `VSCE_PAT`
 
-The marketplace authenticates through Azure DevOps, which is not obvious.
+The marketplace authenticates through Azure DevOps, which is not obvious. Go
+straight to the token page for this organisation:
 
-1. Sign in to [dev.azure.com](https://dev.azure.com/) with the **same Microsoft
-   account that owns the `marcelovani` publisher**. A different account will
-   authenticate fine and then fail with "you do not have permission to publish".
-2. If you have no organisation, create one. The name is irrelevant; it exists
-   only so Azure will issue you a token.
-3. Top right, user settings → **Personal access tokens** → **New Token**.
-4. Set **Organization** to **All accessible organizations**. This is the step
-   people get wrong — a token scoped to one organisation fails against the
-   marketplace with a 401 that does not explain itself.
-5. Set **Scopes** to **Custom defined**, then find **Marketplace** and tick
-   **Manage**.
+<https://marcelovani.visualstudio.com/_usersSettings/tokens>
+
+That URL matters. The organisation predates the move to `dev.azure.com`, so it
+still lives on the old `*.visualstudio.com` domain. Starting from
+`dev.azure.com` lands you somewhere that does not show the organisation at all,
+and there is no **Personal access tokens** entry to find — which looks like the
+option has been removed rather than like you are in the wrong place.
+
+Sign in with **marcelovani@hotmail.com**, the account that owns the publisher. A
+different account authenticates fine and then fails with "you do not have
+permission to publish".
+
+Then:
+
+1. **New Token**.
+2. Name it anything; `vsce publish` is a reasonable choice.
+3. Set **Organization** to **All accessible organizations** — see the note below.
+4. Set an expiration, up to a year.
+5. Set **Scopes** to **Custom defined**, then click **Show all scopes** beneath
+   the list. Marketplace is not in the short list, so without this the scope you
+   need simply is not there. Scroll to **Marketplace** and tick **Manage**.
 6. Create it and copy the token. It is shown once.
+
+> **Expires as a mechanism, December 2026.** Azure DevOps says: "Beginning
+> December 1, 2026, Global Personal Access Tokens (PATs) scoped to all
+> accessible organizations will no longer be supported." That is the scope
+> `vsce` needs today, so a release after that date will need whatever Microsoft
+> replaces it with. Worth checking before the first release of December 2026
+> rather than finding out from a red pipeline.
 
 ```bash
 gh secret set VSCE_PAT --repo marcelovani/drupal-recipes-autocomplete-vscode
