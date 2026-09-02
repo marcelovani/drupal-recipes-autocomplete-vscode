@@ -86,6 +86,46 @@ Change records carry a worked YAML example and say which version introduced the
 action. They are the best single source for a specific action, just not for
 knowing the full set.
 
+## What the extension discovers for itself
+
+The generated list covers core, and the schema covers what a static file can.
+Neither can cover two things, so `src/base/config-action-discovery.ts` works
+them out from the codebase that is open:
+
+**Actions that depend on the site.** `PermissionsPerBundleDeriver` turns every
+bundle entity type into `grantPermissionsForEach<Bundle>`, so
+`grantPermissionsForEachMediaType` exists on a site with media and not on one
+without. These are derived from the config entities the YAML scan already
+found — a `media.type.*` in the codebase means the action exists.
+
+**Actions a contrib or custom module declares.** Only that module's PHP says so.
+`PhpDiscovery` reads `#[ConfigAction]` and `#[ActionMethod]` out of
+`**/{modules,themes,profiles}/**/src/**/*.php`, skipping `core` because core's
+actions already ship, and skipping any file that does not mention an attribute
+at all.
+
+Attributes are matched rather than parsed. A real PHP parser would be more
+robust, but `web-tree-sitter` plus the PHP grammar costs roughly 3MB shipped
+against a 0.32MB bundle, which is a poor trade for two attribute shapes.
+
+That is only defensible while the matching agrees with the PHP extractor, so
+there is a check:
+
+```bash
+npm run compile-tests
+node scripts/cross-check-discovery.mjs /path/to/drupal-core src/base/core-config-actions.json
+```
+
+Give it the same core commit the JSON was generated from, recorded in its
+`generatedFrom` field — a different version reports actions that merely moved
+out of core. Against `11.x` at `f0cc91d7ec9` it finds no false positives, and
+misses only the eight deriver-produced names such as `create` and
+`placeBlockInDefaultTheme`, which a deriver decides at runtime and which are
+folded into `core-config-actions.json` by hand.
+
+If that ever stops holding, switching to tree-sitter is the answer, and this
+script is how you would know.
+
 ## Recording the decision
 
 Every action in `core-config-actions.json` must be accounted for in

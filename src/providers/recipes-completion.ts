@@ -17,6 +17,7 @@ import {
   getInsertedValue,
 } from '../utils/utils';
 import { YamlDiscovery } from '../base/drupal-workspace-yaml-discovery';
+import { PhpDiscovery } from '../base/drupal-workspace-php-discovery';
 import { cacheItem } from '../utils/cache';
 import { getIconKind } from '../utils/icons';
 
@@ -26,6 +27,7 @@ export default class RecipesCompletionProvider
 {
   static language = 'yaml';
   private yamlDiscovery: YamlDiscovery;
+  private phpDiscovery: PhpDiscovery;
 
   cache: Map<string, cacheItem[]> = new Map();
 
@@ -49,7 +51,14 @@ export default class RecipesCompletionProvider
       this.drupalWorkspace,
       this.cache
     );
-    this.yamlDiscovery.parseYamlFiles();
+    this.phpDiscovery = new PhpDiscovery(this.drupalWorkspace, this.cache);
+
+    // The action discovery reads the config entities the YAML scan finds, so
+    // it has to follow it rather than run alongside.
+    this.yamlDiscovery
+      .parseYamlFiles()
+      .then(() => this.phpDiscovery.discover())
+      .catch((error) => console.error('Config action discovery failed', error));
   }
 
   /**
@@ -102,6 +111,12 @@ export default class RecipesCompletionProvider
     }
 
     let cachedItems = this.cache.get(propertyPath) || [];
+
+    // Action names apply to whatever config is being acted on, so they are
+    // cached once under a wildcard rather than per config name.
+    if (/^config\/actions\/[^/]+$/.test(propertyPath)) {
+      cachedItems = cachedItems.concat(this.cache.get('config/actions/*') ?? []);
+    }
 
     // Workaround to remove duplicated entries.
     // @todo Investigate why there are multiple duplications.
