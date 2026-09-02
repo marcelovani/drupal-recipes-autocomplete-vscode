@@ -119,6 +119,23 @@ suite('Recipe completions', () => {
     ]);
   });
 
+  test('offers config actions from core, from this codebase, and from its modules', async () => {
+    // Issue #8. Three sources at once, at the same position:
+    //  - simpleConfigUpdate ships in the generated core list
+    //  - grantPermissionsForEachTaxonomyVocabulary exists only because the
+    //    fixture has a taxonomy vocabulary; no static list could know it
+    //  - doSomethingModuleSpecific and setWidget are declared in the fixture
+    //    module's own PHP
+    await completionLabelsAt(DYNAMIC, new vscode.Position(5, 48), [
+      'simpleConfigUpdate',
+      'grantPermissionsForEachTaxonomyVocabulary',
+      'grantPermissionsForEachMediaType',
+      'doSomethingModuleSpecific',
+      'setWidget',
+      'setWidgets',
+    ]);
+  });
+
   test('does not offer recipe suggestions outside a recipe file', async () => {
     const uri = vscode.Uri.joinPath(
       vscode.workspace.workspaceFolders![0].uri,
